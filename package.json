@@ -1,0 +1,53 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "For Fun",
+  "private": true,
+  "engines": {
+    "npm": ">=0.35.1",
+    "node": ">=17.3.0"
+  },
+  "scripts": {
+    "test": "run-test",
+    "build-prod": "echo \"Building optimized production version of application ...\" && webpack --config webpack.prod.config.js",
+    "build-dev-serve-hot-reload": "echo \"Building dev version of application (hot-reloaded) at http://localhost:3004 ...\" && webpack-dev-server --config webpack.dev.config.js --hot --port 3004",
+    "static-serve": "echo \"Serving application statically at 0.0.0.0:3004 ...\" && http-server -a 0.0.0.0 -p 3004 -c-1 ./dist -s",
+    "dev": "npm run build-dev-serve-hot-reload",
+    "start": "npm run build-dev-serve-hot-reload"
+  },
+  "keywords": [
+    "fun",
+    "games"
+  ],
+  "author": "Mitch",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-vue": "^8.7.1",
+    "globals": "^15.14.0",
+    "http-server": "^14.0.0",
+    "sass": "^1.80.6",
+    "sass-loader": "^16.0.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.2",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.7.2"
+  },
+  "dependencies": {
+    "babel-loader": "^9.2.1",
+    "css-loader": "^7.1.2",
+    "install": "^0.13.0",
+    "npm": "^10.5.2",
+    "p5": "^1.4.1",
+    "restify": "^8.6.0",
+    "runge-kutta": "^0.0.1",
+    "style-loader": "^4.0.0",
+    "three": "^0.136.0",
+    "vue": "^2.7.16",
+    "vue-loader": "^15.11.1"
+  }
+}
