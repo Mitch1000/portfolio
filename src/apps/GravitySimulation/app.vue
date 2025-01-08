@@ -50,8 +50,8 @@ Gravity Simulation (App)
         id="info-box"
         ref="infoBox"
         class="info-box"
-        @click="handleInfoBoxClicked"
       >
+        <!-- @click="handleInfoBoxClicked" -->
         <div
           id="name"
           ref="name"

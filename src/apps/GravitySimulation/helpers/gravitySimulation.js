@@ -1,4 +1,6 @@
 import P5 from 'p5';
+import * as THREE from 'three';
+import CameraControls from 'camera-controls';
 import rungeKutta from 'runge-kutta';
 import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
@@ -9,8 +11,13 @@ import planetData from './planetData';
 // N⋅m^2⋅kg^2
 // Newtons, meter, kilogram - These are the units we are using.
 // For time we are using seconds.
-const gravitationConstant = 6.6738410 * (10 ** -11);
 let canvas = {};
+let controls = {};
+let renderer = {};
+let camera = {};
+const drawDistance = 34000;
+
+const gravitationConstant = 6.6738410 * (10 ** -11);
 let currentScenario = 'Solar System';
 let physicsBodies = [];
 let zoom = 0.01;
@@ -22,8 +29,15 @@ let yearCount = new Date().getFullYear();
 let isYearCounted = true;
 let isScaled = true;
 let onMouseClick = null;
+const clock = new THREE.Clock();
+const offset = -100;
+
+let scene = {};
+scene.background = null;
 let character = {};
 const shiftValue = { x: 1.5, y: 1.5 };
+
+CameraControls.install({ THREE });
 
 function generatePhysicsBodies(scenarioKey) {
   physicsBodies = planetData[scenarioKey].map((data) => {
@@ -31,6 +45,8 @@ function generatePhysicsBodies(scenarioKey) {
     planet.mass *= massUnitMultiplier;
     planet.position.x *= distanceUnitMultiplier;
     planet.position.y *= distanceUnitMultiplier;
+    planet.position.z *= distanceUnitMultiplier;
+    planet.scene = scene;
 
     return new PhysicsBody(planet);
   });
@@ -64,6 +80,49 @@ function setInitialTimeScale(scenarioKey) {
   intitialTimeScale = timeScale;
 }
 
+function initLight(currentScene) {
+  const dirLight = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
+  const dirLight2 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
+  const dirLight3 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
+
+  dirLight3.position.set(offset, 0, 0);
+  dirLight2.position.set(offset, 0, 0);
+  dirLight.position.set(offset, 0, 0);
+  dirLight3.rotation.set(180, 0, 0);
+  dirLight2.rotation.set(180, 0, 0);
+
+  const ambientLight = new THREE.AmbientLight('#ffffff', 1);
+
+  currentScene.add(dirLight, dirLight2, dirLight3, ambientLight);
+}
+
+function initRenderer() {
+  const glRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+  glRenderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(glRenderer.domElement);
+  return glRenderer;
+}
+
+function initCamera() {
+  const cam = new THREE.PerspectiveCamera(
+    50,
+    window.innerWidth / window.innerHeight,
+    0.01,
+    drawDistance,
+  );
+
+  cam.position.x = -0.02;
+  cam.position.y = 0;
+  cam.position.z = -800;
+  return cam;
+}
+
+function initControl(cam) {
+  const ctrl = new CameraControls(cam, renderer.domElement);
+  return ctrl;
+}
+
 const windowScale = {
   x: window.innerWidth,
   y: window.innerHeight,
@@ -76,20 +135,28 @@ const diagramScale = {
 };
 
 const denormalizer = new Denormalizer(windowScale, diagramScale);
-let isOrbiting = false;
 
-function code(p5) {
-  generatePhysicsBodies(currentScenario);
-  setInitialTimeScale(currentScenario);
-
+function code() {
   return {
     setup() {
-      const cnv = p5.createCanvas(
-        window.innerWidth * shiftValue.x,
-        window.innerHeight * shiftValue.y,
-        p5.WEBGL,
-      );
-      canvas = cnv.canvas;
+      renderer = initRenderer();
+      camera = initCamera();
+      controls = initControl(camera, renderer);
+      canvas = renderer.domElement;
+      scene = new THREE.Scene();
+      scene.background = null;
+
+      character = new Character({
+        scene,
+        renderer,
+        camera,
+        controls,
+      });
+
+      initLight(scene);
+
+      generatePhysicsBodies(currentScenario);
+      setInitialTimeScale(currentScenario);
 
       const updateTimeConstant = (sliderValue, initialPosition, sliderEl) => {
         const getTimeScale = () => timeScale
@@ -142,26 +209,21 @@ function code(p5) {
 
       scenarioSelectEl.addEventListener('change', handleScenarioSelect);
 
-      p5.pixelDensity(4);
-      p5.noStroke();
-
-      p5.background(8, 4, 4);
-
-      physicsBodies.forEach((body) => body.draw(p5, denormalizer, isScaled));
+      physicsBodies.forEach((body) => body.draw(denormalizer, isScaled));
+      physicsBodies.forEach((body) => body.drawForceVector(denormalizer, drawDistance));
     },
 
     draw() {
-      console.log('character', character);
+      const deltaTime = clock.getDelta();
 
-      p5.smooth();
-      p5.frameRate(60);
       if (canvas.style.position !== 'absolute') {
         canvas = document.getElementById('defaultCanvas0');
         canvas.addEventListener('click', onMouseClick);
 
         canvas.style.position = 'absolute';
-        const top = (shiftValue.y - 1) * 100;
-        canvas.style.top = `-${top}%`;
+        // const top = (shiftValue.y - 1) * 100;
+        // canvas.style.top = `-${top}%`;
+        canvas.style.top = 0;
         canvas.style.left = '0';
       }
       const variableCount = 4;
@@ -229,32 +291,13 @@ function code(p5) {
       const scaleEl = document.getElementById('scale-checkbox').getElementsByTagName('input')[0];
       isScaled = scaleEl.checked;
 
-      p5.background(8, 4, 4);
-      p5.noStroke();
-      p5.pixelDensity(4);
-      if (isOrbiting) {
-        p5.orbitControl();
-      }
+      physicsBodies.forEach((body) => body.updatePosition(denormalizer, isScaled));
+      physicsBodies.forEach((body) => body.updateForceVector(denormalizer));
 
-      p5.scale(zoom + -1);
-      p5.ambientLight(128);
+      character.animate(deltaTime);
 
-      physicsBodies.forEach((body) => body.drawForceVector(p5, denormalizer));
-
-      physicsBodies.forEach((body) => body.draw(p5, denormalizer, isScaled));
-
-      character.animate();
-    },
-
-    keyPressed() {
-      if (p5.keyCode === p5.SHIFT) {
-        isOrbiting = true;
-        return;
-      }
-      isOrbiting = false;
-    },
-    keyReleased() {
-      isOrbiting = false;
+      controls.update(deltaTime);
+      renderer.render(scene, camera);
     },
   };
 }

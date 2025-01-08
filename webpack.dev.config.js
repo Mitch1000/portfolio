@@ -6,9 +6,9 @@ module.exports = {
   mode: 'development',
   devtool: 'source-map',
   resolve: {
-      alias: {
-          vue: 'vue/dist/vue.js'
-      },
+    alias: {
+      vue: 'vue/dist/vue.js',
+    },
   },
   module: {
     rules: [
@@ -32,8 +32,11 @@ module.exports = {
           // Translates CSS into CommonJS
           'css-loader',
           // Compiles Sass to CSS
-          'sass-loader',
         ],
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
       },
     ],
   },
