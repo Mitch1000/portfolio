@@ -72,7 +72,7 @@ export default {
     },
     {
       name: 'Jupiter',
-      position: { x: 778, y: 0, z: -300 },
+      position: { x: 778, y: 0, z: -250 },
       velocity: { x: 0, y: -13060, z: 40000 },
       mass: 1898.13,
       color: [247, 239, 129],

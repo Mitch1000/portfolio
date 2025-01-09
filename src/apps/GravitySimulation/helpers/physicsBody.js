@@ -1,9 +1,82 @@
 import * as THREE from 'three';
-import { Line2 } from 'three/examples/jsm/lines/Line2';
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
-import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry';
 import { getToonMaterial, solidify } from './toonLighting';
 import Vector from './vector';
+
+const LINE_WIDTH = 2;
+function updateBoxHeadAndTail(headVector, tailVector, pos, denormalizer) {
+  // TODO Find pattern here in BoxGeometry to avoid creating these arrays.
+  const lineOriginVectorsIndexes = [0, 1, 2, 3, 9, 11, 13, 15, 17, 19, 20, 22];
+  // To make it a box these oints need to be offset by the width value
+  // Y indices of top sides of cube
+  const yPositionBoxIndexes = [0, 3, 12, 15, 24, 27, 30, 33, 48, 51, 60, 63];
+
+  // Z indices of back sides of cube
+  const zPositionBoxIndexes = [0, 6, 15, 21, 30, 33, 36, 39, 48, 51, 54, 57];
+
+  const position = pos;
+  const width = LINE_WIDTH;
+
+  const updateToVector = (i, vector, isHead = false) => {
+    const positionArrayIndex = i * 3;
+
+    const absY = Math.abs(vector.y);
+    const absX = Math.abs(vector.x);
+
+    let rat = absY < absX
+      ? absY / absX
+      : absX / absY;
+
+    const isCenter = Number.isNaN(rat) && absX > 1 ? -1 : 1;
+
+    if (Number.isNaN(rat)) {
+      rat = 1;
+    }
+    let xSign = vector.x === 0 ? Math.sign(headVector.x) : Math.sign(vector.x);
+    let ySign = vector.y === 0 ? Math.sign(headVector.y) : Math.sign(vector.y);
+
+    if (xSign === 0) {
+      xSign = 1;
+    }
+
+    if (ySign === 0) {
+      ySign = 1;
+    }
+
+    const headFactor = isHead ? 0.8 : 1;
+
+    const sign = xSign * ySign;
+
+    if (yPositionBoxIndexes.includes(positionArrayIndex)) {
+      position.array[positionArrayIndex] = vector.x + (width / 2) * sign * headFactor * isCenter;
+    } else {
+      position.array[positionArrayIndex] = vector.x + (width / -2) * sign * headFactor * isCenter;
+    }
+
+    if (yPositionBoxIndexes.includes(positionArrayIndex)) {
+      position.array[positionArrayIndex + 1] = vector.y + (width / -2) * headFactor;
+    } else {
+      position.array[positionArrayIndex + 1] = vector.y + (width / 2) * headFactor;
+    }
+
+    if (zPositionBoxIndexes.includes(positionArrayIndex)) {
+      position.array[positionArrayIndex + 2] = vector.z + width / 2;
+    } else {
+      position.array[positionArrayIndex + 2] = vector.z + width / -2;
+    }
+  };
+
+  for (let i = 0; i < (position.array.length / 3); i += 1) {
+    // Update Box to Origin Points or Target Points
+
+    if (lineOriginVectorsIndexes.includes(i)) {
+      updateToVector(i, headVector, true);
+    } else {
+      updateToVector(i, tailVector);
+    }
+  }
+
+  position.needsUpdate = true;
+}
 
 function rgbToHex(r, g, b) {
   return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`; // eslint-disable-line
@@ -20,10 +93,12 @@ class PhysicsBody {
     scale = 1,
     isToDrawForceVector = true,
     lightingTones = 2,
-    offset = -100,
+    offsetX = -100,
+    offsetY = 0,
     scene,
   }) {
-    this.offset = offset;
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
     this.velocity = velocity;
     this.lightingTones = lightingTones;
     this.position = position;
@@ -38,13 +113,14 @@ class PhysicsBody {
     this.scene = scene;
     this.mesh = null;
     this.outline = null;
-    this.forceVector = null;
+    this.forceLineMesh = null;
+    this.lineWidth = 2;
   }
 
   setPosition(mesh, position, denormalizer) {
     const p = position;
     const d = denormalizer;
-    mesh.position.set(d.dnx(p.x) + this.offset, d.dny(p.y), d.dnz(p.z));
+    mesh.position.set(d.dnx(p.x) + this.offsetX, d.dny(p.y) + this.offsetY, d.dnz(p.z));
     mesh.updateMatrix();
     return mesh.position;
   }
@@ -65,42 +141,30 @@ class PhysicsBody {
     return sphere;
   }
 
-  drawLine(originVector, targetVector, color) {
-    const raycaster = new THREE.Raycaster();
-
-    raycaster.ray.origin.set(originVector.x, originVector.y, originVector.z);
-    raycaster.ray.direction.set(targetVector.x, targetVector.y, targetVector.z);
-
+  drawLine(originVector, targetVector, color, denormalizer) {
     const points = [];
     points.push(originVector);
     points.push(new THREE.Vector3(0, 0, 0));
     points.push(originVector);
 
-    const geometry = new LineGeometry();
+    const distance = originVector.distanceTo(targetVector);
 
-    const positions = [
-      originVector.x,
-      originVector.y,
-      originVector.z,
-      this.offset,
-      0,
-      0,
-      originVector.x,
-      originVector.y,
-      originVector.z,
-    ];
+    const width = LINE_WIDTH;
+    const geometry = new THREE.BoxGeometry(distance, width, width);
 
-    geometry.setPositions(positions);
-    const material = new LineMaterial({
+    const material = new THREE.MeshBasicMaterial({
       color,
-      linewidth: 2.5,
-      alphaToCoverage: false,
+      side: THREE.DoubleSide,
     });
 
-    const line = new Line2(geometry, material);
-    // const line = new THREE.Mesh(geometry, material);
+    const line = new THREE.Mesh(geometry, material);
+
+    const position = line.geometry.getAttribute('position');
+
+    updateBoxHeadAndTail(originVector, targetVector, position, denormalizer);
 
     this.scene.add(line);
+
     return line;
   }
 
@@ -141,70 +205,54 @@ class PhysicsBody {
     return (((3 / 4) * this.mass) / (Math.PI * density)) ** (1 / 3);
   }
 
-  drawForceVector(denormalizer, drawDistance) {
+  drawForceVector(denormalizer) {
     if (!this.isToDrawForceVector) { return; }
     // const color = rgbToHex(206, 45, 79);
     const color = 'crimson';
 
-    const multiplier = denormalizer.diagramScale.y * 0.01;
-    const headx = denormalizer.dnx(this.position.x) + this.acceleration.x * multiplier;
-    const heady = denormalizer.dny(this.position.y) + this.acceleration.y * multiplier;
-    const headz = denormalizer.dnz(this.position.z) + this.acceleration.z * multiplier;
-
     const originVector = new THREE.Vector3(
-      denormalizer.dnx(this.position.x) + this.offset,
-      denormalizer.dny(this.position.y),
+      denormalizer.dnx(this.position.x) + this.offsetX,
+      denormalizer.dny(this.position.y) + this.offsetY,
       denormalizer.dny(this.position.z),
     );
 
     const targetVector = new THREE.Vector3(
-      headx,
-      heady,
-      headz,
+      0 + this.offsetX,
+      0 + this.offsetY,
+      0,
     );
 
-    this.forceVector = this.drawLine(
+    this.forceLineMesh = this.drawLine(
       originVector,
       targetVector,
       color,
-      drawDistance / 16,
+      denormalizer,
     );
   }
 
-  updateForceVector(denormalizer) {
+  updateForceLines(denormalizer) {
     if (!this.isToDrawForceVector) {
       return;
     }
 
-    const hasArrow = this.forceVector instanceof Line2;
+    const hasArrow = this.forceLineMesh instanceof THREE.Mesh;
 
     if (!hasArrow) { return; }
 
     const originVector = new THREE.Vector3(
-      denormalizer.dnx(this.position.x),
-      denormalizer.dny(this.position.y),
+      denormalizer.dnx(this.position.x) + this.offsetX,
+      denormalizer.dny(this.position.y) + this.offsetY,
       denormalizer.dnz(this.position.z),
     );
 
-    const position = this.forceVector.geometry.attributes.instanceStart.data;
+    const targetVector = new THREE.Vector3(
+      0 + this.offsetX,
+      0 + this.offsetY,
+      0,
+    );
 
-    position.array[0] = originVector.x + this.offset;
-    position.array[1] = originVector.y;
-    position.array[2] = originVector.z;
-
-    position.array[position.array.length - 3] = originVector.x + this.offset;
-    position.array[position.array.length - 2] = originVector.y;
-    position.array[position.array.length - 1] = originVector.z;
-
-    this.forceVector.geometry.attributes.instanceStart.needsUpdate = true;
-
-    position.needsUpdate = true;
-
-    // this.forceVector.geometry.needsUpdate = true;
-    // const quaternion = new THREE.Quaternion();
-    // quaternion.setFromUnitVectors(targetVector, originVector);
-
-    // this.forceVector.applyQuaternion(quaternion);
+    const position = this.forceLineMesh.geometry.getAttribute('position');
+    updateBoxHeadAndTail(originVector, targetVector, position);
   }
 
   updatePosition(denormalizer) {

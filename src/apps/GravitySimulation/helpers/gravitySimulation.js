@@ -6,6 +6,7 @@ import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 import Denormalizer from './denormalizer';
 import Character from './character';
+import drawIntroText from './drawIntroText';
 import planetData from './planetData';
 
 // N⋅m^2⋅kg^2
@@ -15,7 +16,7 @@ let canvas = {};
 let controls = {};
 let renderer = {};
 let camera = {};
-const drawDistance = 34000;
+const drawDistance = 50000;
 
 const gravitationConstant = 6.6738410 * (10 ** -11);
 let currentScenario = 'Solar System';
@@ -30,7 +31,8 @@ let isYearCounted = true;
 let isScaled = true;
 let onMouseClick = null;
 const clock = new THREE.Clock();
-const offset = -100;
+const offsetX = window.innerWidth * -0.12;
+const offsetY = window.innerHeight * -0.15;
 
 let scene = {};
 scene.background = null;
@@ -47,6 +49,9 @@ function generatePhysicsBodies(scenarioKey) {
     planet.position.y *= distanceUnitMultiplier;
     planet.position.z *= distanceUnitMultiplier;
     planet.scene = scene;
+    planet.offsetX = offsetX;
+    planet.offsetY = offsetY;
+
 
     return new PhysicsBody(planet);
   });
@@ -85,9 +90,9 @@ function initLight(currentScene) {
   const dirLight2 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
   const dirLight3 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
 
-  dirLight3.position.set(offset, 0, 0);
-  dirLight2.position.set(offset, 0, 0);
-  dirLight.position.set(offset, 0, 0);
+  dirLight3.position.set(offsetX, 0, 0);
+  dirLight2.position.set(offsetX, 0, 0);
+  dirLight.position.set(offsetX, 0, 0);
   dirLight3.rotation.set(180, 0, 0);
   dirLight2.rotation.set(180, 0, 0);
 
@@ -108,7 +113,7 @@ function initCamera() {
   const cam = new THREE.PerspectiveCamera(
     50,
     window.innerWidth / window.innerHeight,
-    0.01,
+    50,
     drawDistance,
   );
 
@@ -151,6 +156,7 @@ function code() {
         renderer,
         camera,
         controls,
+        offset: new THREE.Vector3(0, offsetY, 0),
       });
 
       initLight(scene);
@@ -292,9 +298,10 @@ function code() {
       isScaled = scaleEl.checked;
 
       physicsBodies.forEach((body) => body.updatePosition(denormalizer, isScaled));
-      physicsBodies.forEach((body) => body.updateForceVector(denormalizer));
+      physicsBodies.forEach((body) => body.updateForceLines(denormalizer));
 
       character.animate(deltaTime);
+      drawIntroText(scene);
 
       controls.update(deltaTime);
       renderer.render(scene, camera);

@@ -8,6 +8,7 @@ class Character {
     renderer,
     camera,
     controls,
+    offset,
   }) {
     this.scene = scene;
     this.renderer = renderer;
@@ -18,6 +19,9 @@ class Character {
     this.action = null;
     this.animationFrameCount = 0;
     this.animationLoopFrame = 448;
+    this.offsetX = offset.x;
+    this.offsetY = offset.y;
+    this.offsetZ = offset.z;
 
     this.initModel();
   }
@@ -37,28 +41,30 @@ class Character {
           this.action.play();
         }
         console.log('this.model', this.model);
-        const scale = 60;
-        this.model.scale.set(scale, scale, scale);
+        const scale = 70;
+        this.model.scale.setScalar(70);
         this.model.rotation.set(0, (210 * (Math.PI / 180)), 0);
-        this.model.position.set(window.innerWidth * 0.2, 0, -50);
+        this.model.position.set(
+          window.innerWidth * 0.15 + this.offsetX,
+          0 + this.offsetY,
+          -30 + this.offsetZ,
+        );
         const char = this.model.children[1].geometry;
         console.log('char', char);
 
-        const charMaterial = await getToonMaterial('crimson');
+        // const charMaterial = await getToonMaterial('crimson');
 
-        const character = new THREE.Mesh(char, charMaterial);
+        // const character = new THREE.Mesh(char, charMaterial);
 
-        character.rotation.set(0, (180 * (Math.PI / 180)), 0);
-        character.scale.setScalar(150);
+        // character.rotation.set(0, (180 * (Math.PI / 180)), 0);
+        // character.scale.setScalar(180);
         this.scene.add(this.model);
 
         // solidify(character, this.scene);
         this.scene.remove(this.scene.getObjectByName(''));
-        const names = [];
-        this.scene.traverse((obj) => names.push(obj.name));
       },
       (xhr) => {
-        console.log(`${Math.max((xhr.loaded / xhr.total) * 100, 100)} loaded.`);
+        // console.log(`${Math.max((xhr.loaded / xhr.total) * 100, 100)} loaded.`);
       },
       (error) => {
         console.error('An error happened:', error);
