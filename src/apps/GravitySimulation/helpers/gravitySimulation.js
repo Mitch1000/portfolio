@@ -1,4 +1,3 @@
-import P5 from 'p5';
 import * as THREE from 'three';
 import CameraControls from 'camera-controls';
 import rungeKutta from 'runge-kutta';
@@ -6,7 +5,7 @@ import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 import Denormalizer from './denormalizer';
 import Character from './character';
-import drawIntroText from './drawIntroText';
+import IntroText from './introText';
 import planetData from './planetData';
 
 // N⋅m^2⋅kg^2
@@ -37,6 +36,9 @@ const offsetY = window.innerHeight * -0.15;
 let scene = {};
 scene.background = null;
 let character = {};
+let introText = {};
+let introText2 = {};
+
 const shiftValue = { x: 1.5, y: 1.5 };
 
 CameraControls.install({ THREE });
@@ -51,7 +53,6 @@ function generatePhysicsBodies(scenarioKey) {
     planet.scene = scene;
     planet.offsetX = offsetX;
     planet.offsetY = offsetY;
-
 
     return new PhysicsBody(planet);
   });
@@ -89,16 +90,20 @@ function initLight(currentScene) {
   const dirLight = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
   const dirLight2 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
   const dirLight3 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
+  const dirLight4 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
 
-  dirLight3.position.set(offsetX, 0, 0);
-  dirLight2.position.set(offsetX, 0, 0);
   dirLight.position.set(offsetX, 0, 0);
+  dirLight2.position.set(offsetX, 0, 0);
+  dirLight3.position.set(offsetX, 0, 0);
+
+  dirLight4.position.set(0, 214, 0);
+
   dirLight3.rotation.set(180, 0, 0);
   dirLight2.rotation.set(180, 0, 0);
 
   const ambientLight = new THREE.AmbientLight('#ffffff', 1);
 
-  currentScene.add(dirLight, dirLight2, dirLight3, ambientLight);
+  currentScene.add(dirLight, dirLight2, dirLight3, dirLight4, ambientLight);
 }
 
 function initRenderer() {
@@ -125,6 +130,7 @@ function initCamera() {
 
 function initControl(cam) {
   const ctrl = new CameraControls(cam, renderer.domElement);
+  ctrl.rotate(0, -6 * THREE.MathUtils.DEG2RAD, true);
   return ctrl;
 }
 
@@ -141,180 +147,211 @@ const diagramScale = {
 
 const denormalizer = new Denormalizer(windowScale, diagramScale);
 
-function code() {
-  return {
-    setup() {
-      renderer = initRenderer();
-      camera = initCamera();
-      controls = initControl(camera, renderer);
-      canvas = renderer.domElement;
-      scene = new THREE.Scene();
-      scene.background = null;
+function setup() {
+  renderer = initRenderer();
+  camera = initCamera();
+  controls = initControl(camera, renderer);
+  canvas = renderer.domElement;
+  scene = new THREE.Scene();
+  scene.background = null;
 
-      character = new Character({
-        scene,
-        renderer,
-        camera,
-        controls,
-        offset: new THREE.Vector3(0, offsetY, 0),
-      });
+  character = new Character({
+    scene,
+    renderer,
+    camera,
+    controls,
+    offset: new THREE.Vector3(0, offsetY, 0),
+  });
 
-      initLight(scene);
+  introText = new IntroText({
+    scene,
+    ySpeed: 0.04,
+    glitch: true,
+    kerning: 12.5,
+    offsetTime: 200,
+    glitchColor: { x: 0.9, y: 0, z: 0.1 },
+    amplitude: 8,
+  });
+  introText.draw();
 
-      generatePhysicsBodies(currentScenario);
-      setInitialTimeScale(currentScenario);
+  introText2 = new IntroText({
+    scene,
+    textString: 'A Developer Portfolio',
+    initialPositionY: 70,
+    initialPositionX: 180,
+    size: 400,
+    scale: 0.05,
+    kerning: 3.2,
+    color: '#c9c8ab',
+    ySpeed: 0.04,
+    glitch: true,
+    //glitchColor: { x: 0.2735, y: 0.2616, z: 0.1726 },
+    glitchColor: { x: 1, y: 0.1670, z: 0.0429 },
+    // glitchColor: { x: 0.7552, y: 0.8002, z: 0.4031 },
+    // glitchColor: { x: 0.2858, y: 0.3090, z: 0.5988 },
+  });
 
-      const updateTimeConstant = (sliderValue, initialPosition, sliderEl) => {
-        const getTimeScale = () => timeScale
-          + (Math.exp(1) * sliderValue * (intitialTimeScale / 35) * 5);
+  introText2.draw();
 
-        if (initialPosition < sliderEl.getBoundingClientRect().top) {
-          timeScale = Math.min(timeScale, intitialTimeScale);
+  initLight(scene);
 
-          timeScale = Math.max(timeScale + ((sliderValue * (intitialTimeScale / 6)) / 10), 0);
-          return;
-        }
-        timeScale = getTimeScale();
-      };
+  generatePhysicsBodies(currentScenario);
+  setInitialTimeScale(currentScenario);
 
-      const updateZoom = (sliderValue) => {
-        zoom += 0.01 * sliderValue;
-      };
+  const updateTimeConstant = (sliderValue, initialPosition, sliderEl) => {
+    const getTimeScale = () => timeScale
+      + (Math.exp(1) * sliderValue * (intitialTimeScale / 35) * 5);
 
-      const zoomSliderEl = document.getElementById('zoom-slider');
+    if (initialPosition < sliderEl.getBoundingClientRect().top) {
+      timeScale = Math.min(timeScale, intitialTimeScale);
 
-      const zoomHandler = handleSlider(updateZoom, zoomSliderEl);
-
-      const timeSliderEl = document.getElementById('time-slider');
-      const timeHandler = handleSlider(updateTimeConstant, timeSliderEl);
-
-      const scenarioSelectEl = document.getElementById('scenario-select');
-
-      Object.keys(planetData).forEach((scenarioKey) => {
-        const opt = document.createElement('option');
-        opt.value = scenarioKey;
-        opt.innerHTML = scenarioKey;
-        scenarioSelectEl.appendChild(opt);
-      });
-
-      scenarioSelectEl.value = currentScenario;
-      scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
-
-      const handleScenarioSelect = (event) => {
-        currentScenario = event.currentTarget.value;
-
-        // Reset sliders
-        timeSliderEl.style.transform = 'translateY(0px)';
-        zoomSliderEl.style.transform = 'translateY(0px)';
-        timeHandler.currentPosition = 0;
-        zoomHandler.currentPosition = 0;
-
-        setInitialTimeScale(currentScenario);
-        generatePhysicsBodies(currentScenario);
-      };
-
-      scenarioSelectEl.addEventListener('change', handleScenarioSelect);
-
-      physicsBodies.forEach((body) => body.draw(denormalizer, isScaled));
-      physicsBodies.forEach((body) => body.drawForceVector(denormalizer, drawDistance));
-    },
-
-    draw() {
-      const deltaTime = clock.getDelta();
-
-      if (canvas.style.position !== 'absolute') {
-        canvas = document.getElementById('defaultCanvas0');
-        canvas.addEventListener('click', onMouseClick);
-
-        canvas.style.position = 'absolute';
-        // const top = (shiftValue.y - 1) * 100;
-        // canvas.style.top = `-${top}%`;
-        canvas.style.top = 0;
-        canvas.style.left = '0';
-      }
-      const variableCount = 4;
-
-      const getInitial = (bodies) => {
-        const dataArray = [];
-        bodies.forEach((body, index) => {
-          dataArray[index * variableCount] = body.position.x;
-          dataArray[index * variableCount + 1] = body.position.y;
-          dataArray[index * variableCount + 2] = body.velocity.x;
-          dataArray[index * variableCount + 3] = body.velocity.y;
-        });
-        return dataArray;
-      };
-
-      const updateBodies = (y) => {
-        let bodyIndex = 0;
-        y.forEach((value, index) => {
-          if (index % variableCount !== 0) { return; }
-
-          const bodyDataIndex = bodyIndex * variableCount;
-          const body = physicsBodies[bodyIndex];
-          if (typeof body !== 'object') {
-            console.warn('THIS BODY WAS NOT DEFINED'); // eslint-disable-line
-          }
-          body.position.x = y[bodyDataIndex];
-          body.position.y = y[bodyDataIndex + 1];
-          body.velocity.x = y[bodyDataIndex + 2];
-          body.velocity.y = y[bodyDataIndex + 3];
-          bodyIndex += 1;
-        });
-      };
-
-      const differentialEquation = (t, y) => {
-        updateBodies(y);
-        const data = [];
-        physicsBodies.forEach((b, index) => {
-          const body = b;
-          const a = body.getAcceleration(physicsBodies, gravitationConstant);
-
-          const v = body.getVelocityWithDelta(1, a);
-          body.velocity = v;
-
-          body.position.x += v.x;
-          body.position.y += v.y;
-
-          body.acceleration = a;
-          data[(index * variableCount)] = v.x;
-          data[(index * variableCount) + 1] = v.y;
-          data[(index * variableCount) + 2] = a.x;
-          data[(index * variableCount) + 3] = a.y;
-        });
-
-        return data;
-      };
-
-      const initialConditions = getInitial(physicsBodies);
-      const range = [0, Math.max(1000 * parseInt(timeScale, 10), 1000)];
-
-      const steps = Math.max(100 * parseInt(timeScale, 10), 20);
-      rungeKutta(differentialEquation, initialConditions, range, steps);
-
-      handleYearCount();
-
-      const scaleEl = document.getElementById('scale-checkbox').getElementsByTagName('input')[0];
-      isScaled = scaleEl.checked;
-
-      physicsBodies.forEach((body) => body.updatePosition(denormalizer, isScaled));
-      physicsBodies.forEach((body) => body.updateForceLines(denormalizer));
-
-      character.animate(deltaTime);
-      drawIntroText(scene);
-
-      controls.update(deltaTime);
-      renderer.render(scene, camera);
-    },
+      timeScale = Math.max(timeScale + ((sliderValue * (intitialTimeScale / 6)) / 10), 0);
+      return;
+    }
+    timeScale = getTimeScale();
   };
+
+  const updateZoom = (sliderValue) => {
+    zoom += 0.01 * sliderValue;
+  };
+
+  const zoomSliderEl = document.getElementById('zoom-slider');
+
+  const zoomHandler = handleSlider(updateZoom, zoomSliderEl);
+
+  const timeSliderEl = document.getElementById('time-slider');
+  const timeHandler = handleSlider(updateTimeConstant, timeSliderEl);
+
+  const scenarioSelectEl = document.getElementById('scenario-select');
+
+  Object.keys(planetData).forEach((scenarioKey) => {
+    const opt = document.createElement('option');
+    opt.value = scenarioKey;
+    opt.innerHTML = scenarioKey;
+    scenarioSelectEl.appendChild(opt);
+  });
+
+  scenarioSelectEl.value = currentScenario;
+  scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
+
+  const handleScenarioSelect = (event) => {
+    currentScenario = event.currentTarget.value;
+
+    // Reset sliders
+    timeSliderEl.style.transform = 'translateY(0px)';
+    zoomSliderEl.style.transform = 'translateY(0px)';
+    timeHandler.currentPosition = 0;
+    zoomHandler.currentPosition = 0;
+
+    setInitialTimeScale(currentScenario);
+    generatePhysicsBodies(currentScenario);
+  };
+  scenarioSelectEl.addEventListener('change', handleScenarioSelect);
+
+  physicsBodies.forEach((body) => body.draw(denormalizer, isScaled));
+  physicsBodies.forEach((body) => body.drawForceVector(denormalizer, drawDistance));
+
+  renderer.render(scene, camera);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const deltaTime = clock.getDelta();
+
+  if (canvas.style.position !== 'absolute') {
+    canvas.addEventListener('click', onMouseClick);
+
+    canvas.style.position = 'absolute';
+    // const top = (shiftValue.y - 1) * 100;
+    // canvas.style.top = `-${top}%`;
+    canvas.style.top = 0;
+    canvas.style.left = '0';
+  }
+  const variableCount = 4;
+
+  const getInitial = (bodies) => {
+    const dataArray = [];
+    bodies.forEach((body, index) => {
+      dataArray[index * variableCount] = body.position.x;
+      dataArray[index * variableCount + 1] = body.position.y;
+      dataArray[index * variableCount + 2] = body.velocity.x;
+      dataArray[index * variableCount + 3] = body.velocity.y;
+    });
+    return dataArray;
+  };
+
+  const updateBodies = (y) => {
+    let bodyIndex = 0;
+    y.forEach((value, index) => {
+      if (index % variableCount !== 0) { return; }
+
+      const bodyDataIndex = bodyIndex * variableCount;
+      const body = physicsBodies[bodyIndex];
+      if (typeof body !== 'object') {
+        console.warn('THIS BODY WAS NOT DEFINED'); // eslint-disable-line
+      }
+      body.position.x = y[bodyDataIndex];
+      body.position.y = y[bodyDataIndex + 1];
+      body.velocity.x = y[bodyDataIndex + 2];
+      body.velocity.y = y[bodyDataIndex + 3];
+      bodyIndex += 1;
+    });
+  };
+
+  const differentialEquation = (t, y) => {
+    updateBodies(y);
+    const data = [];
+    physicsBodies.forEach((b, index) => {
+      const body = b;
+      const a = body.getAcceleration(physicsBodies, gravitationConstant);
+
+      const v = body.getVelocityWithDelta(1, a);
+      body.velocity = v;
+
+      body.position.x += v.x;
+      body.position.y += v.y;
+
+      body.acceleration = a;
+      data[(index * variableCount)] = v.x;
+      data[(index * variableCount) + 1] = v.y;
+      data[(index * variableCount) + 2] = a.x;
+      data[(index * variableCount) + 3] = a.y;
+    });
+
+    return data;
+  };
+
+  const initialConditions = getInitial(physicsBodies);
+  const range = [0, Math.max(1000 * parseInt(timeScale, 10), 1000)];
+
+  const steps = Math.max(100 * parseInt(timeScale, 10), 20);
+  rungeKutta(differentialEquation, initialConditions, range, steps);
+
+  handleYearCount();
+
+  const scaleEl = document.getElementById('scale-checkbox').getElementsByTagName('input')[0];
+  isScaled = scaleEl.checked;
+
+  physicsBodies.forEach((body) => body.updatePosition(denormalizer, isScaled));
+  physicsBodies.forEach((body) => body.updateForceLines(denormalizer));
+
+  character.animate(deltaTime);
+  introText.animate();
+
+  introText2.animate();
+
+  controls.update(deltaTime);
+  renderer.render(scene, camera);
 }
 
 function main(onMouseClickCallback) {
   onMouseClick = onMouseClickCallback;
-  const canvas1 = (p5) => Object.assign(p5, code(p5));
+
+  setup();
+  animate();
 
   return {
-    p5: new P5(canvas1),
     getPhysicsBodies: () => physicsBodies,
     getIsScaled: () => isScaled,
     getDenormalizer: () => denormalizer,

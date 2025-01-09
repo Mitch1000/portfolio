@@ -3,81 +3,6 @@ import { getToonMaterial, solidify } from './toonLighting';
 import Vector from './vector';
 
 const LINE_WIDTH = 2;
-function updateBoxHeadAndTail(headVector, tailVector, pos, denormalizer) {
-  // TODO Find pattern here in BoxGeometry to avoid creating these arrays.
-  const lineOriginVectorsIndexes = [0, 1, 2, 3, 9, 11, 13, 15, 17, 19, 20, 22];
-  // To make it a box these oints need to be offset by the width value
-  // Y indices of top sides of cube
-  const yPositionBoxIndexes = [0, 3, 12, 15, 24, 27, 30, 33, 48, 51, 60, 63];
-
-  // Z indices of back sides of cube
-  const zPositionBoxIndexes = [0, 6, 15, 21, 30, 33, 36, 39, 48, 51, 54, 57];
-
-  const position = pos;
-  const width = LINE_WIDTH;
-
-  const updateToVector = (i, vector, isHead = false) => {
-    const positionArrayIndex = i * 3;
-
-    const absY = Math.abs(vector.y);
-    const absX = Math.abs(vector.x);
-
-    let rat = absY < absX
-      ? absY / absX
-      : absX / absY;
-
-    const isCenter = Number.isNaN(rat) && absX > 1 ? -1 : 1;
-
-    if (Number.isNaN(rat)) {
-      rat = 1;
-    }
-    let xSign = vector.x === 0 ? Math.sign(headVector.x) : Math.sign(vector.x);
-    let ySign = vector.y === 0 ? Math.sign(headVector.y) : Math.sign(vector.y);
-
-    if (xSign === 0) {
-      xSign = 1;
-    }
-
-    if (ySign === 0) {
-      ySign = 1;
-    }
-
-    const headFactor = isHead ? 0.8 : 1;
-
-    const sign = xSign * ySign;
-
-    if (yPositionBoxIndexes.includes(positionArrayIndex)) {
-      position.array[positionArrayIndex] = vector.x + (width / 2) * sign * headFactor * isCenter;
-    } else {
-      position.array[positionArrayIndex] = vector.x + (width / -2) * sign * headFactor * isCenter;
-    }
-
-    if (yPositionBoxIndexes.includes(positionArrayIndex)) {
-      position.array[positionArrayIndex + 1] = vector.y + (width / -2) * headFactor;
-    } else {
-      position.array[positionArrayIndex + 1] = vector.y + (width / 2) * headFactor;
-    }
-
-    if (zPositionBoxIndexes.includes(positionArrayIndex)) {
-      position.array[positionArrayIndex + 2] = vector.z + width / 2;
-    } else {
-      position.array[positionArrayIndex + 2] = vector.z + width / -2;
-    }
-  };
-
-  for (let i = 0; i < (position.array.length / 3); i += 1) {
-    // Update Box to Origin Points or Target Points
-
-    if (lineOriginVectorsIndexes.includes(i)) {
-      updateToVector(i, headVector, true);
-    } else {
-      updateToVector(i, tailVector);
-    }
-  }
-
-  position.needsUpdate = true;
-}
-
 function rgbToHex(r, g, b) {
   return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`; // eslint-disable-line
 }
@@ -117,6 +42,83 @@ class PhysicsBody {
     this.lineWidth = 2;
   }
 
+  updateBoxHeadAndTail(headVector, tailVector, pos) {
+    // TODO Find pattern here in BoxGeometry to avoid creating these arrays.
+    const lineOriginVectorsIndexes = [0, 1, 2, 3, 9, 11, 13, 15, 17, 19, 20, 22];
+    // To make it a box these oints need to be offset by the width value
+    // Y indices of top sides of cube
+    const yPositionBoxIndexes = [0, 3, 12, 15, 24, 27, 30, 33, 48, 51, 60, 63];
+
+    // Z indices of back sides of cube
+    const zPositionBoxIndexes = [0, 6, 15, 21, 30, 33, 36, 39, 48, 51, 54, 57];
+
+    const position = pos;
+    const width = LINE_WIDTH;
+
+    const updateToVector = (i, vector, isHead = false) => {
+      const positionArrayIndex = i * 3;
+
+      const absY = Math.abs(vector.y - this.offsetY);
+      const absX = Math.abs(vector.x - this.offsetX);
+
+      const rat = absY < absX
+        ? absY / absX
+        : absX / absY;
+
+      let xSign = vector.x === 0
+        ? Math.sign(headVector.x - this.offsetX)
+        : Math.sign(vector.x - this.offsetX);
+
+      let ySign = vector.y === 0
+        ? Math.sign(headVector.y - this.offsetY)
+        : Math.sign(vector.y - this.offsetY);
+
+      if (xSign === 0) {
+        xSign = 1;
+      }
+
+      if (ySign === 0) {
+        ySign = 1;
+      }
+
+      const isCenter = Number.isNaN(rat) ? -1 : 1;
+
+      const headFactor = isHead ? 0.8 : 1;
+
+      const sign = xSign * ySign;
+
+      if (yPositionBoxIndexes.includes(positionArrayIndex)) {
+        position.array[positionArrayIndex] = vector.x + (width / 2) * sign * headFactor * isCenter;
+      } else {
+        position.array[positionArrayIndex] = vector.x + (width / -2) * sign * headFactor;
+      }
+
+      if (yPositionBoxIndexes.includes(positionArrayIndex)) {
+        position.array[positionArrayIndex + 1] = vector.y + (width / -2) * headFactor;
+      } else {
+        position.array[positionArrayIndex + 1] = vector.y + (width / 2) * headFactor;
+      }
+
+      if (zPositionBoxIndexes.includes(positionArrayIndex)) {
+        position.array[positionArrayIndex + 2] = vector.z + width / 2;
+      } else {
+        position.array[positionArrayIndex + 2] = vector.z + width / -2;
+      }
+    };
+
+    for (let i = 0; i < (position.array.length / 3); i += 1) {
+      // Update Box to Origin Points or Target Points
+
+      if (lineOriginVectorsIndexes.includes(i)) {
+        updateToVector(i, headVector, true);
+      } else {
+        updateToVector(i, tailVector);
+      }
+    }
+
+    position.needsUpdate = true;
+  }
+
   setPosition(mesh, position, denormalizer) {
     const p = position;
     const d = denormalizer;
@@ -150,7 +152,7 @@ class PhysicsBody {
     const distance = originVector.distanceTo(targetVector);
 
     const width = LINE_WIDTH;
-    const geometry = new THREE.BoxGeometry(distance, width, width);
+    const geometry = new THREE.CylinderGeometry(width, width, distance, 8, 1);
 
     const material = new THREE.MeshBasicMaterial({
       color,
@@ -161,7 +163,7 @@ class PhysicsBody {
 
     const position = line.geometry.getAttribute('position');
 
-    updateBoxHeadAndTail(originVector, targetVector, position, denormalizer);
+    this.updateBoxHeadAndTail(originVector, targetVector, position, denormalizer);
 
     this.scene.add(line);
 
@@ -252,7 +254,7 @@ class PhysicsBody {
     );
 
     const position = this.forceLineMesh.geometry.getAttribute('position');
-    updateBoxHeadAndTail(originVector, targetVector, position);
+    this.updateBoxHeadAndTail(originVector, targetVector, position);
   }
 
   updatePosition(denormalizer) {
@@ -292,7 +294,7 @@ class PhysicsBody {
     this.mesh = await this.drawSphere(s, this.hexColor(), denormalizer);
     // const circleSize = this.getSize(d.windowScale.x, false, 0.000001);
 
-    this.outline = await solidify(this.mesh, this.scene);
+    this.outline = await solidify(this.mesh.geometry, this.scene);
 
     // if (isScaled) {
     // } else {

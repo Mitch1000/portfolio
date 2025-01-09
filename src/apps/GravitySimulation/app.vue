@@ -197,12 +197,12 @@ export default {
       isInfoBoxOpen: false,
       clickedTimeScale: 10,
       timeScale: 10,
-      simulation: {},
+      simulation1: {},
       massHandler: {},
     };
   },
 
-  created() {
+  mounted() {
     this.simulation = gravitySimulation(this.onCanvasClick);
   },
 
@@ -211,398 +211,398 @@ export default {
   },
 
   methods: {
-    handleInfoBoxClicked(parentEvent) {
-      this.isInfoBoxClicked = true;
-      this.handlePlanetInfoInputClicks(parentEvent);
-      this.updatePlanetWithInfoBoxData();
-    },
+    // handleInfoBoxClicked(parentEvent) {
+    //   this.isInfoBoxClicked = true;
+    //   this.handlePlanetInfoInputClicks(parentEvent);
+    //   this.updatePlanetWithInfoBoxData();
+    // },
 
-    onCanvasClick(parentEvent) {
-      this.isInfoBoxClicked = false;
-      this.updatePlanetWithInfoBoxData();
+    // onCanvasClick(parentEvent) {
+    //   this.isInfoBoxClicked = false;
+    //   this.updatePlanetWithInfoBoxData();
 
-      const { p5, getIsScaled } = this.simulation;
-      const d = this.simulation.getDenormalizer();
-      const zoom = this.simulation.getZoom();
-      const shiftValue = this.simulation.getShiftValue();
-      const [clickedBody] = this.simulation.getPhysicsBodies().filter((body) => {
-        const distance = p5.dist(
-          d.dnx(body.position.x) * (zoom - 1),
-          d.dny(body.position.y) * (zoom - 1),
-          p5.mouseX - ((d.windowScale.x / 2) * shiftValue.x),
-          p5.mouseY - ((d.windowScale.y / 2) * shiftValue.y),
-        );
+    //   const { p5, getIsScaled } = this.simulation;
+    //   const d = this.simulation.getDenormalizer();
+    //   const zoom = this.simulation.getZoom();
+    //   const shiftValue = this.simulation.getShiftValue();
+    //   const [clickedBody] = this.simulation.getPhysicsBodies().filter((body) => {
+    //     const distance = p5.dist(
+    //       d.dnx(body.position.x) * (zoom - 1),
+    //       d.dny(body.position.y) * (zoom - 1),
+    //       p5.mouseX - ((d.windowScale.x / 2) * shiftValue.x),
+    //       p5.mouseY - ((d.windowScale.y / 2) * shiftValue.y),
+    //     );
 
-        if (distance < (body.getSize(d.windowScale.x, getIsScaled()) + 2)) {
-          return true;
-        }
-        return false;
-      }).sort((a, b) => a.mass - b.mass);
+    //     if (distance < (body.getSize(d.windowScale.x, getIsScaled()) + 2)) {
+    //       return true;
+    //     }
+    //     return false;
+    //   }).sort((a, b) => a.mass - b.mass);
 
-      this.massHandler = {};
+    //   this.massHandler = {};
 
-      if (typeof clickedBody === 'object' && !this.isInfoBoxOpen) {
-        return this.openPlanetInfoBox(clickedBody, parentEvent);
-      }
+    //   if (typeof clickedBody === 'object' && !this.isInfoBoxOpen) {
+    //     return this.openPlanetInfoBox(clickedBody, parentEvent);
+    //   }
 
-      if (this.isInfoBoxOpen && !this.isInfoBoxClicked) {
-        return this.closePlanetInfoBox();
-      }
-      return null;
-    },
+    //   if (this.isInfoBoxOpen && !this.isInfoBoxClicked) {
+    //     return this.closePlanetInfoBox();
+    //   }
+    //   return null;
+    // },
 
-    handlePlanetInfoInputClicks(parentEvent) {
-      const massInfoEl = this.$refs.mass;
-      const scaleInfoEl = this.$refs.scale;
-      const nameInfoEl = this.$refs.name;
-      const densityInfoEl = this.$refs.density;
-      const positionInfoEl = this.$refs.position;
-      const velocityInfoEl = this.$refs.velocity;
+    // handlePlanetInfoInputClicks(parentEvent) {
+    //   const massInfoEl = this.$refs.mass;
+    //   const scaleInfoEl = this.$refs.scale;
+    //   const nameInfoEl = this.$refs.name;
+    //   const densityInfoEl = this.$refs.density;
+    //   const positionInfoEl = this.$refs.position;
+    //   const velocityInfoEl = this.$refs.velocity;
 
-      if (parentEvent.target.id === 'name' || parentEvent.target.parentElement.id === 'name') {
-        nameInfoEl
-          .getElementsByTagName('span')[0].style.display = 'none';
-        [this.nameInput] = nameInfoEl
-          .getElementsByTagName('input');
-        this.nameInput.style.display = 'initial';
+    //   if (parentEvent.target.id === 'name' || parentEvent.target.parentElement.id === 'name') {
+    //     nameInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'none';
+    //     [this.nameInput] = nameInfoEl
+    //       .getElementsByTagName('input');
+    //     this.nameInput.style.display = 'initial';
 
-        this.nameInput.placeholder = this.currentlyOpenBody.name;
-        this.nameInput.focus();
-      } else {
-        nameInfoEl
-          .getElementsByTagName('span')[0].value = '';
-        nameInfoEl
-          .getElementsByTagName('span')[0].style.display = 'initial';
-        nameInfoEl
-          .getElementsByTagName('input')[0].style.display = 'none';
-      }
+    //     this.nameInput.placeholder = this.currentlyOpenBody.name;
+    //     this.nameInput.focus();
+    //   } else {
+    //     nameInfoEl
+    //       .getElementsByTagName('span')[0].value = '';
+    //     nameInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'initial';
+    //     nameInfoEl
+    //       .getElementsByTagName('input')[0].style.display = 'none';
+    //   }
 
-      if (parentEvent.target.id === 'mass' || parentEvent.target.parentElement.id === 'mass') {
-        massInfoEl
-          .getElementsByTagName('span')[0].style.display = 'none';
-        [this.massInput] = massInfoEl
-          .getElementsByTagName('input');
-        this.massInput.style.display = 'initial';
+    //   if (parentEvent.target.id === 'mass' || parentEvent.target.parentElement.id === 'mass') {
+    //     massInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'none';
+    //     [this.massInput] = massInfoEl
+    //       .getElementsByTagName('input');
+    //     this.massInput.style.display = 'initial';
 
-        this.massInput.placeholder = Number(this.currentlyOpenBody.mass.toPrecision(5));
-        this.massInput.focus();
-      } else {
-        massInfoEl
-          .getElementsByTagName('span')[0].value = '';
-        massInfoEl
-          .getElementsByTagName('span')[0].style.display = 'initial';
-        massInfoEl
-          .getElementsByTagName('input')[0].style.display = 'none';
-      }
+    //     this.massInput.placeholder = Number(this.currentlyOpenBody.mass.toPrecision(5));
+    //     this.massInput.focus();
+    //   } else {
+    //     massInfoEl
+    //       .getElementsByTagName('span')[0].value = '';
+    //     massInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'initial';
+    //     massInfoEl
+    //       .getElementsByTagName('input')[0].style.display = 'none';
+    //   }
 
-      if (parentEvent.target.id === 'scale' || parentEvent.target.parentElement.id === 'scale') {
-        scaleInfoEl
-          .getElementsByTagName('span')[0].style.display = 'none';
-        [this.scaleInput] = scaleInfoEl
-          .getElementsByTagName('input');
-        this.scaleInput.style.display = 'initial';
+    //   if (parentEvent.target.id === 'scale' || parentEvent.target.parentElement.id === 'scale') {
+    //     scaleInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'none';
+    //     [this.scaleInput] = scaleInfoEl
+    //       .getElementsByTagName('input');
+    //     this.scaleInput.style.display = 'initial';
 
-        this.scaleInput.placeholder = Number(this.currentlyOpenBody.scale.toPrecision(5));
-        this.scaleInput.focus();
-      } else {
-        scaleInfoEl
-          .getElementsByTagName('span')[0].value = '';
-        scaleInfoEl
-          .getElementsByTagName('span')[0].style.display = 'initial';
-        scaleInfoEl
-          .getElementsByTagName('input')[0].style.display = 'none';
-      }
+    //     this.scaleInput.placeholder = Number(this.currentlyOpenBody.scale.toPrecision(5));
+    //     this.scaleInput.focus();
+    //   } else {
+    //     scaleInfoEl
+    //       .getElementsByTagName('span')[0].value = '';
+    //     scaleInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'initial';
+    //     scaleInfoEl
+    //       .getElementsByTagName('input')[0].style.display = 'none';
+    //   }
 
-      if (parentEvent.target.id === 'density' || parentEvent.target.parentElement.id === 'density') {
-        densityInfoEl
-          .getElementsByTagName('span')[0].style.display = 'none';
-        [this.densityInput] = densityInfoEl
-          .getElementsByTagName('input');
-        this.densityInput.style.display = 'initial';
+    //   if (parentEvent.target.id === 'density' || parentEvent.target.parentElement.id === 'density') {
+    //     densityInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'none';
+    //     [this.densityInput] = densityInfoEl
+    //       .getElementsByTagName('input');
+    //     this.densityInput.style.display = 'initial';
 
-        this.densityInput.placeholder = Number(this.currentlyOpenBody.density.toPrecision(5));
-        this.densityInput.focus();
-      } else {
-        densityInfoEl
-          .getElementsByTagName('span')[0].value = '';
-        densityInfoEl
-          .getElementsByTagName('span')[0].style.display = 'initial';
-        densityInfoEl
-          .getElementsByTagName('input')[0].style.display = 'none';
-      }
+    //     this.densityInput.placeholder = Number(this.currentlyOpenBody.density.toPrecision(5));
+    //     this.densityInput.focus();
+    //   } else {
+    //     densityInfoEl
+    //       .getElementsByTagName('span')[0].value = '';
+    //     densityInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'initial';
+    //     densityInfoEl
+    //       .getElementsByTagName('input')[0].style.display = 'none';
+    //   }
 
-      if (
-        parentEvent.target.id === 'position'
-        || parentEvent.target.parentElement.parentElement.id === 'position'
-        || parentEvent.target.parentElement.id === 'position'
-      ) {
-        positionInfoEl
-          .getElementsByTagName('span')[0].style.display = 'none';
-        [this.positionXInput, this.positionYInput] = positionInfoEl
-          .getElementsByTagName('input');
+    //   if (
+    //     parentEvent.target.id === 'position'
+    //     || parentEvent.target.parentElement.parentElement.id === 'position'
+    //     || parentEvent.target.parentElement.id === 'position'
+    //   ) {
+    //     positionInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'none';
+    //     [this.positionXInput, this.positionYInput] = positionInfoEl
+    //       .getElementsByTagName('input');
 
-        this.positionXInput.style.display = 'initial';
-        this.positionYInput.style.display = 'initial';
+    //     this.positionXInput.style.display = 'initial';
+    //     this.positionYInput.style.display = 'initial';
 
-        this.positionXInput.placeholder = Number(
-          this.currentlyOpenBody.position.x.toPrecision(4) / 10 ** 9,
-        );
-        this.positionYInput.placeholder = Number(
-          this.currentlyOpenBody.position.y.toPrecision(4) / 10 ** 9,
-        );
-      } else {
-        positionInfoEl
-          .getElementsByTagName('span')[0].value = '';
-        positionInfoEl
-          .getElementsByTagName('span')[0].style.display = 'initial';
-        positionInfoEl
-          .getElementsByTagName('input')[0].style.display = 'none';
-        positionInfoEl
-          .getElementsByTagName('input')[1].style.display = 'none';
-      }
+    //     this.positionXInput.placeholder = Number(
+    //       this.currentlyOpenBody.position.x.toPrecision(4) / 10 ** 9,
+    //     );
+    //     this.positionYInput.placeholder = Number(
+    //       this.currentlyOpenBody.position.y.toPrecision(4) / 10 ** 9,
+    //     );
+    //   } else {
+    //     positionInfoEl
+    //       .getElementsByTagName('span')[0].value = '';
+    //     positionInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'initial';
+    //     positionInfoEl
+    //       .getElementsByTagName('input')[0].style.display = 'none';
+    //     positionInfoEl
+    //       .getElementsByTagName('input')[1].style.display = 'none';
+    //   }
 
-      if (
-        parentEvent.target.id === 'velocity'
-        || parentEvent.target.parentElement.parentElement.id === 'velocity'
-        || parentEvent.target.parentElement.id === 'velocity'
-      ) {
-        velocityInfoEl
-          .getElementsByTagName('span')[0].style.display = 'none';
-        [this.velocityXInput, this.velocityYInput] = velocityInfoEl
-          .getElementsByTagName('input');
+    //   if (
+    //     parentEvent.target.id === 'velocity'
+    //     || parentEvent.target.parentElement.parentElement.id === 'velocity'
+    //     || parentEvent.target.parentElement.id === 'velocity'
+    //   ) {
+    //     velocityInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'none';
+    //     [this.velocityXInput, this.velocityYInput] = velocityInfoEl
+    //       .getElementsByTagName('input');
 
-        this.velocityXInput.style.display = 'initial';
-        this.velocityYInput.style.display = 'initial';
+    //     this.velocityXInput.style.display = 'initial';
+    //     this.velocityYInput.style.display = 'initial';
 
-        this.velocityXInput.placeholder = Number(
-          this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000,
-        );
-        this.velocityYInput.placeholder = Number(
-          this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000,
-        );
-      } else {
-        velocityInfoEl
-          .getElementsByTagName('span')[0].value = '';
-        velocityInfoEl
-          .getElementsByTagName('span')[0].style.display = 'initial';
-        velocityInfoEl
-          .getElementsByTagName('input')[0].style.display = 'none';
-        velocityInfoEl
-          .getElementsByTagName('input')[1].style.display = 'none';
-      }
-    },
+    //     this.velocityXInput.placeholder = Number(
+    //       this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000,
+    //     );
+    //     this.velocityYInput.placeholder = Number(
+    //       this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000,
+    //     );
+    //   } else {
+    //     velocityInfoEl
+    //       .getElementsByTagName('span')[0].value = '';
+    //     velocityInfoEl
+    //       .getElementsByTagName('span')[0].style.display = 'initial';
+    //     velocityInfoEl
+    //       .getElementsByTagName('input')[0].style.display = 'none';
+    //     velocityInfoEl
+    //       .getElementsByTagName('input')[1].style.display = 'none';
+    //   }
+    // },
 
-    updatePlanetWithInfoBoxData() {
-      const massInfoEl = this.$refs.mass;
-      const scaleInfoEl = this.$refs.scale;
-      const nameInfoEl = this.$refs.name;
-      const densityInfoEl = this.$refs.density;
-      const positionInfoEl = this.$refs.position;
-      const velocityInfoEl = this.$refs.velocity;
+    // updatePlanetWithInfoBoxData() {
+    //   const massInfoEl = this.$refs.mass;
+    //   const scaleInfoEl = this.$refs.scale;
+    //   const nameInfoEl = this.$refs.name;
+    //   const densityInfoEl = this.$refs.density;
+    //   const positionInfoEl = this.$refs.position;
+    //   const velocityInfoEl = this.$refs.velocity;
 
-      if ((this.massInput.value || {}).length > 0) {
-        const exponentSeparator = 'e+';
-        const massString = String(this.currentlyOpenBody.mass);
-        let exp = 1;
+    //   if ((this.massInput.value || {}).length > 0) {
+    //     const exponentSeparator = 'e+';
+    //     const massString = String(this.currentlyOpenBody.mass);
+    //     let exp = 1;
 
-        if (massString.includes(exponentSeparator)) {
-          const expString = massString.split(exponentSeparator)[1];
+    //     if (massString.includes(exponentSeparator)) {
+    //       const expString = massString.split(exponentSeparator)[1];
 
-          exp = parseInt(expString, 10);
-        } else {
-          exp = massString.length;
-        }
+    //       exp = parseInt(expString, 10);
+    //     } else {
+    //       exp = massString.length;
+    //     }
 
-        this.currentlyOpenBody.mass = parseInt(this.massInput.value, 10) * 10 ** exp;
-        massInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.mass.toPrecision(5))} kg`;
-        this.massInput.value = '';
-      }
+    //     this.currentlyOpenBody.mass = parseInt(this.massInput.value, 10) * 10 ** exp;
+    //     massInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.mass.toPrecision(5))} kg`;
+    //     this.massInput.value = '';
+    //   }
 
-      if ((this.scaleInput.value || {}).length > 0) {
-        this.currentlyOpenBody.scale = parseFloat(this.scaleInput.value, 10);
-        scaleInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.scale)}`;
-        this.scaleInput.value = '';
-      }
+    //   if ((this.scaleInput.value || {}).length > 0) {
+    //     this.currentlyOpenBody.scale = parseFloat(this.scaleInput.value, 10);
+    //     scaleInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.scale)}`;
+    //     this.scaleInput.value = '';
+    //   }
 
-      if ((this.nameInput.value || {}).length > 0) {
-        this.currentlyOpenBody.name = this.nameInput.value;
-        nameInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.name)}`;
-        this.nameInput.value = '';
-      }
+    //   if ((this.nameInput.value || {}).length > 0) {
+    //     this.currentlyOpenBody.name = this.nameInput.value;
+    //     nameInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.name)}`;
+    //     this.nameInput.value = '';
+    //   }
 
-      if ((this.densityInput.value || {}).length > 0) {
-        this.currentlyOpenBody.density = parseFloat(this.densityInput.value, 10);
-        densityInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.density)}`;
-        this.densityInput.value = '';
-      }
+    //   if ((this.densityInput.value || {}).length > 0) {
+    //     this.currentlyOpenBody.density = parseFloat(this.densityInput.value, 10);
+    //     densityInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.density)}`;
+    //     this.densityInput.value = '';
+    //   }
 
-      if ((this.positionXInput.value || {}).length > 0) {
-        this.currentlyOpenBody.position.x = parseFloat(this.positionXInput.value, 10) * 10 ** 9;
-        positionInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `
-            x: ${Number(this.currentlyOpenBody.position.x.toPrecision(5) / 10 ** 9)} million km<br>
-            y: ${Number(this.currentlyOpenBody.position.y.toPrecision(5) / 10 ** 9)} million km`;
-        this.positionXInput.value = '';
-      }
-      if ((this.positionYInput.value || {}).length > 0) {
-        this.currentlyOpenBody.position.y = parseFloat(this.positionYInput.value, 10) * 1000;
-        positionInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `
-            x: ${Number(this.currentlyOpenBody.position.x.toPrecision(5) / 10 ** 9)} million km<br>
-            y: ${Number(this.currentlyOpenBody.position.y.toPrecision(5) / 10 ** 9)} million kn`;
-        this.positionYInput.value = '';
-      }
+    //   if ((this.positionXInput.value || {}).length > 0) {
+    //     this.currentlyOpenBody.position.x = parseFloat(this.positionXInput.value, 10) * 10 ** 9;
+    //     positionInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `
+    //         x: ${Number(this.currentlyOpenBody.position.x.toPrecision(5) / 10 ** 9)} million km<br>
+    //         y: ${Number(this.currentlyOpenBody.position.y.toPrecision(5) / 10 ** 9)} million km`;
+    //     this.positionXInput.value = '';
+    //   }
+    //   if ((this.positionYInput.value || {}).length > 0) {
+    //     this.currentlyOpenBody.position.y = parseFloat(this.positionYInput.value, 10) * 1000;
+    //     positionInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `
+    //         x: ${Number(this.currentlyOpenBody.position.x.toPrecision(5) / 10 ** 9)} million km<br>
+    //         y: ${Number(this.currentlyOpenBody.position.y.toPrecision(5) / 10 ** 9)} million kn`;
+    //     this.positionYInput.value = '';
+    //   }
 
-      if ((this.velocityXInput.value || {}).length > 0) {
-        this.currentlyOpenBody.velocity.x = parseFloat(this.velocityXInput.value, 10) * 1000;
-        velocityInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `
-           &nbsp; &nbsp; x: ${Number(this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000)} km/s<br>
-           &nbsp; &nbsp; y: ${Number(this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000)} km/s`;
-        this.velocityXInput.value = '';
-      }
+    //   if ((this.velocityXInput.value || {}).length > 0) {
+    //     this.currentlyOpenBody.velocity.x = parseFloat(this.velocityXInput.value, 10) * 1000;
+    //     velocityInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `
+    //        &nbsp; &nbsp; x: ${Number(this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000)} km/s<br>
+    //        &nbsp; &nbsp; y: ${Number(this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000)} km/s`;
+    //     this.velocityXInput.value = '';
+    //   }
 
-      if ((this.velocityYInput.value || {}).length > 0) {
-        this.currentlyOpenBody.velocity.y = parseFloat(this.velocityYInput.value, 10) * 1000;
-        velocityInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `
-            &nbsp; &nbsp; x: ${Number(this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000)} km/s<br>
-            &nbsp; &nbsp; y: ${Number(this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000)} km/s`;
-        this.velocityYInput.value = '';
-      }
-    },
+    //   if ((this.velocityYInput.value || {}).length > 0) {
+    //     this.currentlyOpenBody.velocity.y = parseFloat(this.velocityYInput.value, 10) * 1000;
+    //     velocityInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `
+    //         &nbsp; &nbsp; x: ${Number(this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000)} km/s<br>
+    //         &nbsp; &nbsp; y: ${Number(this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000)} km/s`;
+    //     this.velocityYInput.value = '';
+    //   }
+    // },
 
-    closePlanetInfoBox() {
-      const infoEl = this.$refs.infoBox;
-      this.currentlyOpenBody = {};
-      infoEl.style.display = 'none';
-      this.timeScale = this.clickedTimeScale;
-      this.isInfoBoxOpen = false;
-      this.isInfoBoxClicked = false;
+    // closePlanetInfoBox() {
+    //   const infoEl = this.$refs.infoBox;
+    //   this.currentlyOpenBody = {};
+    //   infoEl.style.display = 'none';
+    //   this.timeScale = this.clickedTimeScale;
+    //   this.isInfoBoxOpen = false;
+    //   this.isInfoBoxClicked = false;
 
-      this.massHandler.currentPosition = 0;
-      infoEl.getElementsByClassName('mass-slider--handle')[0].style.transform = 'translateX(0px)';
-      return infoEl;
-    },
+    //   this.massHandler.currentPosition = 0;
+    //   infoEl.getElementsByClassName('mass-slider--handle')[0].style.transform = 'translateX(0px)';
+    //   return infoEl;
+    // },
 
-    openPlanetInfoBox(clickedBody, parentEvent) {
-      this.isInfoBoxOpen = true;
+    // openPlanetInfoBox(clickedBody, parentEvent) {
+    //   this.isInfoBoxOpen = true;
 
-      const massInfoEl = this.$refs.mass;
-      const scaleInfoEl = this.$refs.scale;
-      const { p5 } = this.simulation;
-      const infoEl = this.$refs.infoBox;
-      this.currentlyOpenBody = clickedBody;
-      this.clickedTimeScale = this.timeScale;
+    //   const massInfoEl = this.$refs.mass;
+    //   const scaleInfoEl = this.$refs.scale;
+    //   const { p5 } = this.simulation;
+    //   const infoEl = this.$refs.infoBox;
+    //   this.currentlyOpenBody = clickedBody;
+    //   this.clickedTimeScale = this.timeScale;
 
-      this.handlePlanetInfoInputClicks(parentEvent);
-      this.updatePlanetWithInfoBoxData();
-      const shiftValue = this.simulation.getShiftValue();
-      const els = Array.from(infoEl.getElementsByTagName('div'));
-      const initialBoxY = p5.mouseY - ((shiftValue.y - 1) * window.innerHeight);
-      const initialBoxX = p5.mouseX;
+    //   this.handlePlanetInfoInputClicks(parentEvent);
+    //   this.updatePlanetWithInfoBoxData();
+    //   const shiftValue = this.simulation.getShiftValue();
+    //   const els = Array.from(infoEl.getElementsByTagName('div'));
+    //   const initialBoxY = p5.mouseY - ((shiftValue.y - 1) * window.innerHeight);
+    //   const initialBoxX = p5.mouseX;
 
-      infoEl.style.background = `rgb(${this.currentlyOpenBody.color[0]}, ${this.currentlyOpenBody.color[1]}, ${this.currentlyOpenBody.color[2]})`;
+    //   infoEl.style.background = `rgb(${this.currentlyOpenBody.color[0]}, ${this.currentlyOpenBody.color[1]}, ${this.currentlyOpenBody.color[2]})`;
 
-      infoEl.parentElement.style.top = `${initialBoxY}px`;
-      infoEl.parentElement.style.left = `${initialBoxX}px`;
-      this.$nextTick(() => {
-        const box = infoEl.getBoundingClientRect();
+    //   infoEl.parentElement.style.top = `${initialBoxY}px`;
+    //   infoEl.parentElement.style.left = `${initialBoxX}px`;
+    //   this.$nextTick(() => {
+    //     const box = infoEl.getBoundingClientRect();
 
-        if (box.right > window.innerWidth) {
-          infoEl.parentElement.style.left = `${initialBoxX - box.width}px`;
-        }
+    //     if (box.right > window.innerWidth) {
+    //       infoEl.parentElement.style.left = `${initialBoxX - box.width}px`;
+    //     }
 
-        if (box.left <= 0) {
-          infoEl.parentElement.style.left = `${initialBoxX + box.width}px`;
-        }
+    //     if (box.left <= 0) {
+    //       infoEl.parentElement.style.left = `${initialBoxX + box.width}px`;
+    //     }
 
-        if (box.bottom > window.innerHeight) {
-          infoEl.parentElement.style.top = `${initialBoxY - box.height}px`;
-        }
+    //     if (box.bottom > window.innerHeight) {
+    //       infoEl.parentElement.style.top = `${initialBoxY - box.height}px`;
+    //     }
 
-        if (box.top <= 0) {
-          infoEl.parentElement.style.top = `${initialBoxY + box.height}px`;
-        }
-      });
+    //     if (box.top <= 0) {
+    //       infoEl.parentElement.style.top = `${initialBoxY + box.height}px`;
+    //     }
+    //   });
 
-      Object.keys(this.currentlyOpenBody).forEach((key) => {
-        const keyEl = els.find((el) => el.id === key);
-        if (typeof keyEl !== 'object') { return; }
-        let valueString = this.currentlyOpenBody[key].toString();
-        if (key === 'velocity') {
-          valueString = valueString.replaceAll('units', 'km/s');
-        }
+    //   Object.keys(this.currentlyOpenBody).forEach((key) => {
+    //     const keyEl = els.find((el) => el.id === key);
+    //     if (typeof keyEl !== 'object') { return; }
+    //     let valueString = this.currentlyOpenBody[key].toString();
+    //     if (key === 'velocity') {
+    //       valueString = valueString.replaceAll('units', 'km/s');
+    //     }
 
-        if (key === 'mass') {
-          valueString += 'kg';
-        }
+    //     if (key === 'mass') {
+    //       valueString += 'kg';
+    //     }
 
-        if (key === 'position') {
-          valueString = valueString.replaceAll('units', 'million km');
-          valueString = `
-          &nbsp; &nbsp x: ${Number(this.currentlyOpenBody[key].x.toPrecision(4) / 10 ** 9)} million km<br>
-          &nbsp; &nbsp y: ${Number(this.currentlyOpenBody[key].y.toPrecision(4) / 10 ** 9)} million km`;
-        }
+    //     if (key === 'position') {
+    //       valueString = valueString.replaceAll('units', 'million km');
+    //       valueString = `
+    //       &nbsp; &nbsp x: ${Number(this.currentlyOpenBody[key].x.toPrecision(4) / 10 ** 9)} million km<br>
+    //       &nbsp; &nbsp y: ${Number(this.currentlyOpenBody[key].y.toPrecision(4) / 10 ** 9)} million km`;
+    //     }
 
-        if (key === 'acceleration') {
-          const x = Number(this.currentlyOpenBody[key].x.toPrecision(5));
-          const y = Number(this.currentlyOpenBody[key].y.toPrecision(5));
-          valueString = `&nbsp; &nbsp; x: ${x} m&sup2; <br> &nbsp; &nbsp;y: ${y} m&sup2;`;
-        }
+    //     if (key === 'acceleration') {
+    //       const x = Number(this.currentlyOpenBody[key].x.toPrecision(5));
+    //       const y = Number(this.currentlyOpenBody[key].y.toPrecision(5));
+    //       valueString = `&nbsp; &nbsp; x: ${x} m&sup2; <br> &nbsp; &nbsp;y: ${y} m&sup2;`;
+    //     }
 
-        if (key === 'density') {
-          valueString += ' kg/m&sup3;';
-        }
-        if (key === 'mass') {
-          valueString = `${Number(this.currentlyOpenBody[key].toPrecision(5))} kg`;
-        }
+    //     if (key === 'density') {
+    //       valueString += ' kg/m&sup3;';
+    //     }
+    //     if (key === 'mass') {
+    //       valueString = `${Number(this.currentlyOpenBody[key].toPrecision(5))} kg`;
+    //     }
 
-        keyEl.getElementsByClassName('value')[0].innerHTML = valueString;
-      });
+    //     keyEl.getElementsByClassName('value')[0].innerHTML = valueString;
+    //   });
 
-      const massSliderEl = infoEl.getElementsByClassName('mass-slider--handle')[0];
+    //   const massSliderEl = infoEl.getElementsByClassName('mass-slider--handle')[0];
 
-      const updateMass = (sliderValue) => {
-        const massString = String(this.currentlyOpenBody.mass);
-        let exp = 1;
-        const exponentSeparator = 'e+';
-        if (massString.includes(exponentSeparator)) {
-          const expString = massString.split(exponentSeparator)[1];
+    //   const updateMass = (sliderValue) => {
+    //     const massString = String(this.currentlyOpenBody.mass);
+    //     let exp = 1;
+    //     const exponentSeparator = 'e+';
+    //     if (massString.includes(exponentSeparator)) {
+    //       const expString = massString.split(exponentSeparator)[1];
 
-          exp = parseInt(expString, 10);
-        } else {
-          exp = massString.length;
-        }
+    //       exp = parseInt(expString, 10);
+    //     } else {
+    //       exp = massString.length;
+    //     }
 
-        const newMass = this.currentlyOpenBody.mass - sliderValue * (10 ** (exp - 1));
+    //     const newMass = this.currentlyOpenBody.mass - sliderValue * (10 ** (exp - 1));
 
-        if (newMass < 0) {
-          this.currentlyOpenBody.mass = Math
-            .max(this.currentlyOpenBody.mass - sliderValue * (10 ** (exp - 2)), 0);
-        } else {
-          this.currentlyOpenBody.mass = Math.min(
-            newMass,
-            10 * 10 ** 33,
-          );
-        }
+    //     if (newMass < 0) {
+    //       this.currentlyOpenBody.mass = Math
+    //         .max(this.currentlyOpenBody.mass - sliderValue * (10 ** (exp - 2)), 0);
+    //     } else {
+    //       this.currentlyOpenBody.mass = Math.min(
+    //         newMass,
+    //         10 * 10 ** 33,
+    //       );
+    //     }
 
-        massInfoEl
-          .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.mass.toPrecision(5))} kg`;
+    //     massInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.mass.toPrecision(5))} kg`;
 
-        scaleInfoEl
-          .getElementsByClassName('value')[0].innerHTML = Math.round(this.currentlyOpenBody.scale * 100) / 100;
-      };
+    //     scaleInfoEl
+    //       .getElementsByClassName('value')[0].innerHTML = Math.round(this.currentlyOpenBody.scale * 100) / 100;
+    //   };
 
-      this.massHandler = handleSlider(updateMass, massSliderEl, true);
-      this.timeScale = 0;
-      this.isInfoBoxClicked = false;
-      return infoEl;
-    },
+    //   this.massHandler = handleSlider(updateMass, massSliderEl, true);
+    //   this.timeScale = 0;
+    //   this.isInfoBoxClicked = false;
+    //   return infoEl;
+    // },
   },
 
 };
@@ -719,7 +719,7 @@ export default {
   .slider--handle-box {
     width: 100%;
     height: 100%;
-    background: white;
+    background: #dcdcc8;
     transform: rotate(45deg);
   }
   .slider-container {
@@ -755,7 +755,7 @@ export default {
   }
 
   .slider-info {
-    color: white;
+    color: #f3f3e9;
     font-size: 20px;
     margin-left: auto;
     margin-right: auto;

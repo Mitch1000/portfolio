@@ -18,7 +18,8 @@ class Character {
     this.mixer = null;
     this.action = null;
     this.animationFrameCount = 0;
-    this.animationLoopFrame = 448;
+    // this.animationLoopFrame = 448; // Walk frames
+    this.animationLoopFrame = 1033; // Idle frames
     this.offsetX = offset.x;
     this.offsetY = offset.y;
     this.offsetZ = offset.z;
@@ -34,14 +35,15 @@ class Character {
         this.model = glb.scene;
         this.mixer = new THREE.AnimationMixer(this.model);
         const clips = glb.animations;
-        const clip = THREE.AnimationClip.findByName(clips, 'Walk');
+        console.log('glb.animations', glb.animations);
+
+        const clip = THREE.AnimationClip.findByName(clips, 'Idle.001');
         this.action = this.mixer.clipAction(clip);
         this.action.setLoop(THREE.LoopOnce);
         if (typeof this.action.play === 'function') {
           this.action.play();
         }
         console.log('this.model', this.model);
-        const scale = 70;
         this.model.scale.setScalar(70);
         this.model.rotation.set(0, (210 * (Math.PI / 180)), 0);
         this.model.position.set(
@@ -60,7 +62,7 @@ class Character {
         // character.scale.setScalar(180);
         this.scene.add(this.model);
 
-        // solidify(character, this.scene);
+        // solidify(character.geometry, this.scene);
         this.scene.remove(this.scene.getObjectByName(''));
       },
       (xhr) => {

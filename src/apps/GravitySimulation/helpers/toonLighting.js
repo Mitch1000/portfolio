@@ -3,21 +3,23 @@ import TOON_TONE3 from '../../../assets/threeTone.jpg';
 import TOON_TONE2 from '../../../assets/twoTone.jpg';
 import TOON_TONE1 from '../../../assets/oneTone.jpg';
 
-function solidify(mesh, scene) {
-  const THICKNESS = 1.4;
+function solidify(geometry, scene, thickness = 1.4, color = { x: 0, y: 0, z: 0 }) {
+  const { x, y, z } = color;
+
+  // vec3 xyz = vec3(0.3213,0.1670,0.0429);
   const shaderMaterial = new THREE.ShaderMaterial({
     vertexShader: `void main() { 
-      vec3 newPosition = position + normal * ${THICKNESS};
+      vec3 newPosition = position + normal * ${thickness};
       gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1);
     }`,
     fragmentShader: `void main() {
-      gl_FragColor = vec4(0, 0, 0, 1);
+      vec3 xyz = vec3(${x},${y},${z});
+      gl_FragColor = vec4(xyz, 1.0);
     }`,
     side: THREE.BackSide,
   });
 
-  const outline = new THREE.Mesh(mesh.geometry, shaderMaterial);
-  outline.rotation.set(0, (180 * (Math.PI / 180)), 0);
+  const outline = new THREE.Mesh(geometry, shaderMaterial);
   scene.add(outline);
   return outline;
 }
