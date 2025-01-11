@@ -4,13 +4,12 @@ import { solidify, getToonMaterial } from './toonLighting';
 
 class Character {
   constructor({
-    scene,
     renderer,
     camera,
     controls,
     offset,
+    loadedCallback,
   }) {
-    this.scene = scene;
     this.renderer = renderer;
     this.camera = camera;
     this.controls = controls;
@@ -19,10 +18,12 @@ class Character {
     this.action = null;
     this.animationFrameCount = 0;
     // this.animationLoopFrame = 448; // Walk frames
-    this.animationLoopFrame = 1033; // Idle frames
+    this.animationLoopFrame = 1035; // Idle frames
+    // this.animationLoopFrame = 53; // Running frames
     this.offsetX = offset.x;
     this.offsetY = offset.y;
     this.offsetZ = offset.z;
+    this.loadedCallback = loadedCallback;
 
     this.initModel();
   }
@@ -39,11 +40,7 @@ class Character {
 
         const clip = THREE.AnimationClip.findByName(clips, 'Idle.001');
         this.action = this.mixer.clipAction(clip);
-        this.action.setLoop(THREE.LoopOnce);
-        if (typeof this.action.play === 'function') {
-          this.action.play();
-        }
-        console.log('this.model', this.model);
+
         this.model.scale.setScalar(70);
         this.model.rotation.set(0, (210 * (Math.PI / 180)), 0);
         this.model.position.set(
@@ -51,19 +48,7 @@ class Character {
           0 + this.offsetY,
           -30 + this.offsetZ,
         );
-        const char = this.model.children[1].geometry;
-        console.log('char', char);
-
-        // const charMaterial = await getToonMaterial('crimson');
-
-        // const character = new THREE.Mesh(char, charMaterial);
-
-        // character.rotation.set(0, (180 * (Math.PI / 180)), 0);
-        // character.scale.setScalar(180);
-        this.scene.add(this.model);
-
-        // solidify(character.geometry, this.scene);
-        this.scene.remove(this.scene.getObjectByName(''));
+        this.loadedCallback(this.model);
       },
       (xhr) => {
         // console.log(`${Math.max((xhr.loaded / xhr.total) * 100, 100)} loaded.`);
@@ -77,12 +62,15 @@ class Character {
   animate(deltaTime) {
     if (this.mixer instanceof THREE.AnimationMixer) {
       this.mixer.update(deltaTime);
+      if (this.animationFrameCount <= 0) {
+        this.action.reset();
+        this.action.play();
+        this.animationFrameCount = 0;
+      }
+
       this.animationFrameCount += 1;
 
       if (this.animationFrameCount >= this.animationLoopFrame) {
-        this.action
-          .reset()
-          .play();
         this.animationFrameCount = 0;
       }
     }

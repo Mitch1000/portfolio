@@ -47,6 +47,7 @@
     "runge-kutta": "^0.0.1",
     "sass": "^1.83.1",
     "sass-loader": "^16.0.4",
+    "stats.js": "^0.17.0",
     "style-loader": "^4.0.0",
     "three": "^0.172.0",
     "vue": "^2.7.16",

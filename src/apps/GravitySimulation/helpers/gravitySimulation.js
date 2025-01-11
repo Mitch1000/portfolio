@@ -1,6 +1,17 @@
 import * as THREE from 'three';
+import Stats from 'stats.js';
+
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
+
 import CameraControls from 'camera-controls';
 import rungeKutta from 'runge-kutta';
+import { CrtShader } from './tvShader';
 import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 import Denormalizer from './denormalizer';
@@ -15,12 +26,15 @@ let canvas = {};
 let controls = {};
 let renderer = {};
 let camera = {};
+let composer = {};
+let planetsRender = {};
+let mainRender = {};
+let shaderPass = {};
 const drawDistance = 50000;
 
 const gravitationConstant = 6.6738410 * (10 ** -11);
 let currentScenario = 'Solar System';
 let physicsBodies = [];
-let zoom = 0.01;
 const distanceUnitMultiplier = 10 ** 9; // Meters
 const massUnitMultiplier = 10 ** 24; // Kilograms
 let timeScale = 10;
@@ -34,10 +48,13 @@ const offsetX = window.innerWidth * -0.12;
 const offsetY = window.innerHeight * -0.15;
 
 let scene = {};
-scene.background = null;
+let scene2 = {};
 let character = {};
 let introText = {};
 let introText2 = {};
+const stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
 
 const shiftValue = { x: 1.5, y: 1.5 };
 
@@ -149,11 +166,20 @@ const denormalizer = new Denormalizer(windowScale, diagramScale);
 
 function setup() {
   renderer = initRenderer();
+  renderer.autoClear = false;
   camera = initCamera();
   controls = initControl(camera, renderer);
   canvas = renderer.domElement;
   scene = new THREE.Scene();
   scene.background = null;
+
+  scene2 = new THREE.Scene();
+  scene2.background = null;
+
+  const loadedCallback = (model) => {
+    scene.add(model);
+    scene2.add(model);
+  };
 
   character = new Character({
     scene,
@@ -161,39 +187,42 @@ function setup() {
     camera,
     controls,
     offset: new THREE.Vector3(0, offsetY, 0),
+    loadedCallback,
   });
 
   introText = new IntroText({
     scene,
+    scene2,
     ySpeed: 0.04,
     glitch: true,
     kerning: 12.5,
     offsetTime: 200,
     glitchColor: { x: 0.9, y: 0, z: 0.1 },
     amplitude: 8,
+    initialPositionX: 215,
   });
+
   introText.draw();
 
   introText2 = new IntroText({
     scene,
+    scene2,
     textString: 'A Developer Portfolio',
     initialPositionY: 70,
-    initialPositionX: 180,
+    initialPositionX: 135,
     size: 400,
-    scale: 0.05,
+    scale: 0.055,
     kerning: 3.2,
     color: '#c9c8ab',
     ySpeed: 0.04,
     glitch: true,
-    //glitchColor: { x: 0.2735, y: 0.2616, z: 0.1726 },
     glitchColor: { x: 1, y: 0.1670, z: 0.0429 },
-    // glitchColor: { x: 0.7552, y: 0.8002, z: 0.4031 },
-    // glitchColor: { x: 0.2858, y: 0.3090, z: 0.5988 },
   });
 
   introText2.draw();
 
   initLight(scene);
+  initLight(scene2);
 
   generatePhysicsBodies(currentScenario);
   setInitialTimeScale(currentScenario);
@@ -210,14 +239,6 @@ function setup() {
     }
     timeScale = getTimeScale();
   };
-
-  const updateZoom = (sliderValue) => {
-    zoom += 0.01 * sliderValue;
-  };
-
-  const zoomSliderEl = document.getElementById('zoom-slider');
-
-  const zoomHandler = handleSlider(updateZoom, zoomSliderEl);
 
   const timeSliderEl = document.getElementById('time-slider');
   const timeHandler = handleSlider(updateTimeConstant, timeSliderEl);
@@ -239,22 +260,54 @@ function setup() {
 
     // Reset sliders
     timeSliderEl.style.transform = 'translateY(0px)';
-    zoomSliderEl.style.transform = 'translateY(0px)';
     timeHandler.currentPosition = 0;
-    zoomHandler.currentPosition = 0;
 
     setInitialTimeScale(currentScenario);
     generatePhysicsBodies(currentScenario);
   };
   scenarioSelectEl.addEventListener('change', handleScenarioSelect);
 
-  physicsBodies.forEach((body) => body.draw(denormalizer, isScaled));
+  physicsBodies.forEach((body) => body.draw(denormalizer, isScaled)
+    .then((mesh) => { scene2.add(mesh); }));
   physicsBodies.forEach((body) => body.drawForceVector(denormalizer, drawDistance));
 
-  renderer.render(scene, camera);
+  const clearPass = new ClearPass();
+
+  mainRender = new RenderPass(scene2, camera);
+  mainRender.clear = false;
+
+  planetsRender = new RenderPass(scene, camera);
+  planetsRender.clear = false;
+
+  const screenSize = new THREE.Vector2(window.innerWidth, window.innerHeight);
+  const bloomPass = new UnrealBloomPass(screenSize, 1.5, 0.4, 0.85);
+  bloomPass.threshold = 0.0;
+  bloomPass.strength = 0.2;
+  bloomPass.radius = 0.0;
+
+  const smaaPass = new SMAAPass();
+
+  const outputPass = new OutputPass();
+  outputPass.renderToScreen = true;
+
+  shaderPass = new ShaderPass(CrtShader);
+
+  composer = new EffectComposer(renderer);
+  composer.setSize(window.innerWidth, window.innerHeight);
+
+  composer.addPass(clearPass);
+  composer.addPass(mainRender);
+  composer.addPass(bloomPass);
+  composer.addPass(planetsRender);
+  composer.addPass(smaaPass);
+  composer.addPass(shaderPass);
+  composer.addPass(outputPass);
+
+  composer.render();
 }
 
 function animate() {
+  stats.begin();
   requestAnimationFrame(animate);
 
   const deltaTime = clock.getDelta();
@@ -267,6 +320,8 @@ function animate() {
     // canvas.style.top = `-${top}%`;
     canvas.style.top = 0;
     canvas.style.left = '0';
+    // canvas.style.minWidth = '100vw';
+    // canvas.style.minHeight = '100vw';
   }
   const variableCount = 4;
 
@@ -283,7 +338,7 @@ function animate() {
 
   const updateBodies = (y) => {
     let bodyIndex = 0;
-    y.forEach((value, index) => {
+    y.forEach(value, index) => {
       if (index % variableCount !== 0) { return; }
 
       const bodyDataIndex = bodyIndex * variableCount;
@@ -342,7 +397,9 @@ function animate() {
   introText2.animate();
 
   controls.update(deltaTime);
-  renderer.render(scene, camera);
+  mainRender.clear = true;
+  composer.render(deltaTime);
+  stats.end();
 }
 
 function main(onMouseClickCallback) {

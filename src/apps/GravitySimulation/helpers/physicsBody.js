@@ -23,7 +23,7 @@ class PhysicsBody {
     scene,
   }) {
     this.offsetX = offsetX;
-    this.offsetY = offsetY;
+    this.offsetY = offsetY + 20;
     this.velocity = velocity;
     this.lightingTones = lightingTones;
     this.position = position;
@@ -292,7 +292,6 @@ class PhysicsBody {
     const s = this.getSize(d.windowScale.x, isScaled);
 
     this.mesh = await this.drawSphere(s, this.hexColor(), denormalizer);
-    // const circleSize = this.getSize(d.windowScale.x, false, 0.000001);
 
     this.outline = await solidify(this.mesh.geometry, this.scene);
 
@@ -300,6 +299,7 @@ class PhysicsBody {
     // } else {
     //   this.outline = await this.drawSphere(circleSize, this.hexColor(), denormalizer);
     // }
+    return this.mesh;
   }
 }
 

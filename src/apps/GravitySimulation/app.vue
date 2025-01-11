@@ -24,23 +24,6 @@ Gravity Simulation (App)
             </div>
           </div>
         </div>
-        <div class="slider-container">
-          <div class="slider-info">
-            <span class="material-symbols-outlined">
-              search
-            </span>
-          </div>
-          <div class="slider">
-            <div
-              id="zoom-slider"
-              class="slider--handle slider--handle-zoom"
-            >
-              <div class="slider--handle-scaler">
-                <div class="slider--handle-box" />
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -626,7 +609,7 @@ export default {
     cursor: pointer;
   }
   .scenario-select-container {
-    position: absolute;
+    position: fixed;
     top: 2vh;
     left: 76vw;
     width: 100vw;
@@ -680,8 +663,8 @@ export default {
   .slider--handle {
     position: absolute;
     top: 70%;
-    width: 14px;
-    height: 14px;
+    width: 1.5vw;
+    height: 1.5vw;
     right: -6px;
     cursor: pointer;
   }
@@ -694,6 +677,7 @@ export default {
     width: 100%;
     height: 100%;
   }
+
   .mass-slider--handle-scaler {
     transform: scaleX(12.4);
     width: 100%;
@@ -733,7 +717,7 @@ export default {
 
   .sliders-holder {
     max-width: 30px;
-    margin-right: 2%;
+    margin-right: 4%;
     margin-top: 24px;
     pointer-events: all;
   }
@@ -742,12 +726,14 @@ export default {
      width: 100%;
      display: flex;
      justify-content: flex-end;
+     position: absolute;
+     top: 13%;
   }
 
   .slider {
     position: relative;
     width: 2px;
-    height: 200px;
+    height: 28vh;
     background: #d4d4d5;
     border-radius: 2px;
     margin-left: auto;

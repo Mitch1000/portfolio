@@ -6,19 +6,21 @@ import { getToonMaterial, solidify } from './toonLighting';
 class IntroText {
   constructor({
     scene,
+    scene2,
     textString = 'Mitch World',
     kerning = 12,
     size = 500,
     scale = 0.125,
     ySpeed = 0.08,
     amplitude = 12,
-    initialPositionX = 249,
+    initialPositionX = 224,
     initialPositionY = 115,
     color = 'crimson',
     glitch = false,
     glitchColor = { x: 0.5, y: 0.1670, z: 0.0429 },
   }) {
     this.scene = scene;
+    this.scene2 = scene2;
     this.textString = textString;
     this.kerning = kerning;
     this.frameCount = 0;
@@ -99,6 +101,7 @@ class IntroText {
           }
 
           this.scene.add(text);
+          this.scene2.add(text);
 
           this.messages.push(text);
           this.outlines.push(outline);
