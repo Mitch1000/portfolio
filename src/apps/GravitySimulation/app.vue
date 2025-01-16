@@ -651,8 +651,8 @@ export default {
   }
 
   .scenario-select {
-    width: 130px;
-    height: 30px;
+    width: auto;
+    height: auto;
     background: black;
     border: none;
     color: #dfdfdf;
@@ -663,12 +663,19 @@ export default {
     margin-left: auto;
   }
 
+  @media (width <= 1200px) {
+    .scenario-select {
+      font-size: 40px;
+    }
+  }
+
+
   .slider--handle {
     position: absolute;
     top: 70%;
-    width: 100%;
-    height: 7%;
     right: 0;
+    width: 100%;
+    height: auto;
     cursor: pointer;
     z-index: 1;
   }
@@ -678,8 +685,24 @@ export default {
 
   .slider--handle-scaler {
     transform: scaleY(1.4);
-    width: 100%;
-    height: 100%;
+    width: 20px;
+    height: 20px;
+    margin: auto;
+  }
+
+  @media (width <= 1200px) {
+    .slider--handle-scaler {
+      width: 3vw;
+      height: 3vw;
+    }
+  }
+
+  @media (width <= 1000px) {
+    .slider--handle-scaler {
+      width: 5vw;
+      height: 5vw;
+      padding: 0 20px;
+    }
   }
 
   .mass-slider--handle-scaler {
@@ -713,15 +736,20 @@ export default {
   .slider-container {
     margin-left: 2%;
     margin-top: 2%;
-    margin-right: 2%;
+    margin-right: 40px;
     margin-top: 2%;
     position: relative;
     margin-bottom: 40px;
+    width: 4vw;
+  }
+
+  @media (width <= 1200px) {
+    .slider-container {
+      width: 12vw;
+    }
   }
 
   .sliders-holder {
-    max-width: 30px;
-    margin-right: 4vw;
     margin-top: 24px;
     pointer-events: all;
   }
@@ -731,13 +759,13 @@ export default {
      display: flex;
      justify-content: flex-end;
      position: absolute;
-     top: 13%;
+     top: 45%;
   }
 
   .slider {
     position: relative;
     width: 2px;
-    height: 28vh;
+    height: 32vh;
     background: #d4d4d5;
     border-radius: 2px;
     margin-left: auto;
@@ -750,7 +778,16 @@ export default {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 5px;
+    text-align: center;
   }
+
+  @media (width <= 1200px) {
+    .slider-info {
+      font-size: 35px;
+    }
+  }
+
+
   .material-symbols-outlined {
     font-variation-settings:
     'FILL' 0,
@@ -801,6 +838,12 @@ export default {
     font-size: 20px;
     font-family: Roboto;
     text-transform: uppercase;
+  }
+
+  @media (width <= 1200px) {
+    .year-count {
+      font-size: 30px;
+    }
   }
 
   .year-count > span {
@@ -893,9 +936,12 @@ export default {
     transition: all 0.4s ease;
   }
   .gravity-simulation {
+    overflow: hidden;
     position: absolute;
     width: 100vw;
     height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
     top: 0;
     left: 0;
     z-index: 1;

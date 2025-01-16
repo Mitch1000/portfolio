@@ -78,9 +78,11 @@ function initCamera() {
     drawDistance,
   );
 
+  const isMobile = window.innerWidth < 1200;
+
   cam.position.x = -0.02;
   cam.position.y = 0;
-  cam.position.z = -800;
+  cam.position.z = isMobile ? -1200 : -800;
   return cam;
 }
 
@@ -143,8 +145,6 @@ function setup() {
     loadedCallback,
   });
 
-  const isMobile = window.innerWidth < 650;
-
   introText = new IntroText({
     scene,
     scene2,
@@ -154,8 +154,8 @@ function setup() {
     offsetTime: 200,
     glitchColor: { x: 0.9, y: 0, z: 0.1 },
     amplitude: 8,
-    initialPositionX: isMobile ? 170 : 215,
-    scale: isMobile ? 0.0875 : 0.125,
+    initialPositionX: 215,
+    scale: 0.125,
   });
 
   introText.draw();
@@ -244,6 +244,9 @@ function animate() {
     canvas.style.position = 'absolute';
     canvas.style.top = 0;
     canvas.style.left = '0';
+    canvas.style.maxWidth = '100vw';
+    canvas.style.maxHeight = '100vh';
+    canvas.style.overflow = 'hidden';
   }
 
   character.animate(deltaTime);
