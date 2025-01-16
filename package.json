@@ -11,7 +11,7 @@
     "test": "run-test",
     "build-prod": "echo \"Building optimized production version of application ...\" && webpack --config webpack.prod.config.js",
     "build-dev-serve-hot-reload": "echo \"Building dev version of application (hot-reloaded) at http://localhost:3004 ...\" && webpack-dev-server --config webpack.dev.config.js --hot --port 3004",
-    "static-serve": "echo \"Serving application statically at 0.0.0.0:3004 ...\" && http-server -a 0.0.0.0 -p 3004 -c-1 ./dist -s",
+    "static-serve": "echo \"Serving application statically at 0.0.0.0:80 ...\" && http-server -a 0.0.0.0 -p 80 -c-1 ./dist -s",
     "dev": "npm run build-dev-serve-hot-reload",
     "start": "npm run build-dev-serve-hot-reload"
   },
@@ -32,7 +32,6 @@
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.7",
-    "webpack": "^5.96.1",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.7.2"
   },
@@ -50,8 +49,10 @@
     "sass-loader": "^16.0.4",
     "stats.js": "^0.17.0",
     "style-loader": "^4.0.0",
+    "terser": "^5.37.0",
     "three": "^0.172.0",
     "vue": "^2.7.16",
-    "vue-loader": "^15.11.1"
+    "vue-loader": "^15.11.1",
+    "webpack": "^5.97.1"
   }
 }
