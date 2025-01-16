@@ -1,420 +1,184 @@
-import * as THREE from 'three';
-import Stats from 'stats.js';
-
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
-
-import CameraControls from 'camera-controls';
-import rungeKutta from 'runge-kutta';
-import { CrtShader } from './tvShader';
+import { Vector3 } from 'three';
 import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 import Denormalizer from './denormalizer';
-import Character from './character';
-import IntroText from './introText';
+import GravityCalculator from './gravityCalculator';
 import planetData from './planetData';
 
-// N⋅m^2⋅kg^2
-// Newtons, meter, kilogram - These are the units we are using.
-// For time we are using seconds.
-let canvas = {};
-let controls = {};
-let renderer = {};
-let camera = {};
-let composer = {};
-let planetsRender = {};
-let mainRender = {};
-let shaderPass = {};
-const drawDistance = 50000;
-
-const gravitationConstant = 6.6738410 * (10 ** -11);
-let currentScenario = 'Solar System';
-let physicsBodies = [];
-const distanceUnitMultiplier = 10 ** 9; // Meters
-const massUnitMultiplier = 10 ** 24; // Kilograms
-let timeScale = 10;
-let intitialTimeScale = timeScale;
-let yearCount = new Date().getFullYear();
-let isYearCounted = true;
-let isScaled = true;
-let onMouseClick = null;
-const clock = new THREE.Clock();
-const offsetX = window.innerWidth * -0.12;
-const offsetY = window.innerHeight * -0.15;
-
-let scene = {};
-let scene2 = {};
-let character = {};
-let introText = {};
-let introText2 = {};
-const stats = new Stats();
-stats.showPanel(0);
-document.body.appendChild(stats.dom);
-
-const shiftValue = { x: 1.5, y: 1.5 };
-
-CameraControls.install({ THREE });
-
-function generatePhysicsBodies(scenarioKey) {
-  physicsBodies = planetData[scenarioKey].map((data) => {
-    const planet = JSON.parse(JSON.stringify(data));
-    planet.mass *= massUnitMultiplier;
-    planet.position.x *= distanceUnitMultiplier;
-    planet.position.y *= distanceUnitMultiplier;
-    planet.position.z *= distanceUnitMultiplier;
-    planet.scene = scene;
-    planet.offsetX = offsetX;
-    planet.offsetY = offsetY;
-
-    return new PhysicsBody(planet);
-  });
-  return physicsBodies;
-}
-
-function handleYearCount() {
-  const earth = physicsBodies.find((body) => body.name === 'Earth');
-  const sun = physicsBodies.find((body) => body.name === 'Sun');
-  const earthPosition = ((earth || {}).position || {});
-  const sunPosition = ((sun || {}).position || {});
-  const isInXWindow = earthPosition.x > sunPosition.x;
-  if (isInXWindow && !isYearCounted) {
-    yearCount += 1;
-    isYearCounted = true;
-    const yearEl = document.getElementById('year-count')
-      .getElementsByTagName('span')[0];
-    yearEl.innerHTML = yearCount;
-  }
-  if (earthPosition.x < sunPosition.x) {
-    isYearCounted = false;
-  }
-}
-
-function setInitialTimeScale(scenarioKey) {
-  if (scenarioKey === 'Chaotic') {
-    timeScale = 2500;
-  } else {
-    timeScale = 10;
-  }
-  intitialTimeScale = timeScale;
-}
-
-function initLight(currentScene) {
-  const dirLight = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
-  const dirLight2 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
-  const dirLight3 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
-  const dirLight4 = new THREE.PointLight('#ffffff', 1.8, 1000, 0.01);
-
-  dirLight.position.set(offsetX, 0, 0);
-  dirLight2.position.set(offsetX, 0, 0);
-  dirLight3.position.set(offsetX, 0, 0);
-
-  dirLight4.position.set(0, 214, 0);
-
-  dirLight3.rotation.set(180, 0, 0);
-  dirLight2.rotation.set(180, 0, 0);
-
-  const ambientLight = new THREE.AmbientLight('#ffffff', 1);
-
-  currentScene.add(dirLight, dirLight2, dirLight3, dirLight4, ambientLight);
-}
-
-function initRenderer() {
-  const glRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-
-  glRenderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(glRenderer.domElement);
-  return glRenderer;
-}
-
-function initCamera() {
-  const cam = new THREE.PerspectiveCamera(
-    50,
-    window.innerWidth / window.innerHeight,
-    50,
-    drawDistance,
-  );
-
-  cam.position.x = -0.02;
-  cam.position.y = 0;
-  cam.position.z = -800;
-  return cam;
-}
-
-function initControl(cam) {
-  const ctrl = new CameraControls(cam, renderer.domElement);
-  ctrl.rotate(0, -6 * THREE.MathUtils.DEG2RAD, true);
-  return ctrl;
-}
-
-const windowScale = {
-  x: window.innerWidth,
-  y: window.innerHeight,
-  z: window.innerHeight,
-};
-const diagramScale = {
-  x: ((window.innerWidth * 2) * distanceUnitMultiplier),
-  y: ((window.innerHeight * 2) * distanceUnitMultiplier),
-  z: ((window.innerHeight * 2) * distanceUnitMultiplier),
-};
-
-const denormalizer = new Denormalizer(windowScale, diagramScale);
-
-function setup() {
-  renderer = initRenderer();
-  renderer.autoClear = false;
-  camera = initCamera();
-  controls = initControl(camera, renderer);
-  canvas = renderer.domElement;
-  scene = new THREE.Scene();
-  scene.background = null;
-
-  scene2 = new THREE.Scene();
-  scene2.background = null;
-
-  const loadedCallback = (model) => {
-    scene.add(model);
-    scene2.add(model);
-  };
-
-  character = new Character({
-    scene,
-    renderer,
-    camera,
-    controls,
-    offset: new THREE.Vector3(0, offsetY, 0),
-    loadedCallback,
-  });
-
-  introText = new IntroText({
+class GravitySimulation {
+  constructor({
+    gravitationConstant = 6.6738410 * (10 ** -11),
+    currentScenario = 'Solar System',
+    distanceUnitMultiplier = 10 ** 9, // Meters
+    massUnitMultiplier = 10 ** 24, // Kilograms
+    timeScale = 10,
+    intitialTimeScale = timeScale,
+    yearCount = new Date().getFullYear(),
+    isYearCounted = true,
+    isScaled = true,
+    drawDistance = 50000,
+    offset = new Vector3({ x: 0, y: 0, z: 0 }),
+    timeSlider = {},
     scene,
     scene2,
-    ySpeed: 0.04,
-    glitch: true,
-    kerning: 12.5,
-    offsetTime: 200,
-    glitchColor: { x: 0.9, y: 0, z: 0.1 },
-    amplitude: 8,
-    initialPositionX: 215,
-  });
+  }) {
+    this.gravitationConstant = gravitationConstant;
+    this.currentScenario = currentScenario;
+    this.distanceUnitMultiplier = distanceUnitMultiplier;
+    this.massUnitMultiplier = massUnitMultiplier;
+    this.timeScale = timeScale;
+    this.intitialTimeScale = intitialTimeScale;
+    this.yearCount = yearCount;
+    this.isYearCounted = isYearCounted;
+    this.isScaled = isScaled;
+    this.offset = offset;
+    this.drawDistance = drawDistance;
+    this.isScaled = isScaled;
+    this.scene = scene;
+    this.scene2 = scene2;
 
-  introText.draw();
+    this.physicsBodies = this.generatePhysicsBodies(planetData, this.currentScenario);
 
-  introText2 = new IntroText({
-    scene,
-    scene2,
-    textString: 'A Developer Portfolio',
-    initialPositionY: 70,
-    initialPositionX: 135,
-    size: 400,
-    scale: 0.055,
-    kerning: 3.2,
-    color: '#c9c8ab',
-    ySpeed: 0.04,
-    glitch: true,
-    glitchColor: { x: 1, y: 0.1670, z: 0.0429 },
-  });
+    const diagramScale = {
+      x: ((window.innerWidth * 2) * distanceUnitMultiplier),
+      y: ((window.innerHeight * 2) * distanceUnitMultiplier),
+      z: ((window.innerHeight * 2) * distanceUnitMultiplier),
+    };
+    const windowScale = {
+      x: window.innerWidth,
+      y: window.innerHeight,
+      z: window.innerHeight,
+    };
 
-  introText2.draw();
+    this.setInitialTimeScale(currentScenario);
+    this.denormalizer = new Denormalizer(windowScale, diagramScale);
 
-  initLight(scene);
-  initLight(scene2);
+    this.handleTimeSlider();
+    this.setupScenarioSelectInput(currentScenario);
 
-  generatePhysicsBodies(currentScenario);
-  setInitialTimeScale(currentScenario);
+    this.drawPhysicsBodies(this.physicsBodies);
+  }
 
-  const updateTimeConstant = (sliderValue, initialPosition, sliderEl) => {
-    const getTimeScale = () => timeScale
-      + (Math.exp(1) * sliderValue * (intitialTimeScale / 35) * 5);
+  static removePhysicsBodies(physicsBodies) {
+    physicsBodies.forEach((body) => body.remove());
+  }
 
-    if (initialPosition < sliderEl.getBoundingClientRect().top) {
-      timeScale = Math.min(timeScale, intitialTimeScale);
+  drawPhysicsBodies(physicsBodies) {
+    physicsBodies.forEach((body) => body.draw(this.denormalizer, this.isScaled));
+    physicsBodies
+      .forEach((body) => body.drawForceVector(this.denormalizer, this.drawDistance));
+  }
 
-      timeScale = Math.max(timeScale + ((sliderValue * (intitialTimeScale / 6)) / 10), 0);
-      return;
-    }
-    timeScale = getTimeScale();
-  };
+  handleTimeSlider() {
+    const updateTimeConstant = (sliderValue) => {
+      const { intitialTimeScale } = this;
 
-  const timeSliderEl = document.getElementById('time-slider');
-  const timeHandler = handleSlider(updateTimeConstant, timeSliderEl);
+      const getTimeScale = () => (Math.exp(1) * sliderValue * (intitialTimeScale / 35) * 5);
 
-  const scenarioSelectEl = document.getElementById('scenario-select');
-
-  Object.keys(planetData).forEach((scenarioKey) => {
-    const opt = document.createElement('option');
-    opt.value = scenarioKey;
-    opt.innerHTML = scenarioKey;
-    scenarioSelectEl.appendChild(opt);
-  });
-
-  scenarioSelectEl.value = currentScenario;
-  scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
-
-  const handleScenarioSelect = (event) => {
-    currentScenario = event.currentTarget.value;
-
-    // Reset sliders
+      this.timeScale = getTimeScale();
+    };
+    const timeSliderEl = document.getElementById('time-slider');
     timeSliderEl.style.transform = 'translateY(0px)';
-    timeHandler.currentPosition = 0;
 
-    setInitialTimeScale(currentScenario);
-    generatePhysicsBodies(currentScenario);
-  };
-  scenarioSelectEl.addEventListener('change', handleScenarioSelect);
+    const timeHandler = handleSlider(updateTimeConstant, timeSliderEl);
+    console.log('timeHandler', timeHandler);
 
-  physicsBodies.forEach((body) => body.draw(denormalizer, isScaled)
-    .then((mesh) => { scene2.add(mesh); }));
-  physicsBodies.forEach((body) => body.drawForceVector(denormalizer, drawDistance));
-
-  const clearPass = new ClearPass();
-
-  mainRender = new RenderPass(scene2, camera);
-  mainRender.clear = false;
-
-  planetsRender = new RenderPass(scene, camera);
-  planetsRender.clear = false;
-
-  const screenSize = new THREE.Vector2(window.innerWidth, window.innerHeight);
-  const bloomPass = new UnrealBloomPass(screenSize, 1.5, 0.4, 0.85);
-  bloomPass.threshold = 0.0;
-  bloomPass.strength = 0.2;
-  bloomPass.radius = 0.0;
-
-  const smaaPass = new SMAAPass();
-
-  const outputPass = new OutputPass();
-  outputPass.renderToScreen = true;
-
-  shaderPass = new ShaderPass(CrtShader);
-
-  composer = new EffectComposer(renderer);
-  composer.setSize(window.innerWidth, window.innerHeight);
-
-  composer.addPass(clearPass);
-  composer.addPass(mainRender);
-  composer.addPass(bloomPass);
-  composer.addPass(planetsRender);
-  composer.addPass(smaaPass);
-  composer.addPass(shaderPass);
-  composer.addPass(outputPass);
-
-  composer.render();
-}
-
-function animate() {
-  stats.begin();
-  requestAnimationFrame(animate);
-
-  const deltaTime = clock.getDelta();
-
-  if (canvas.style.position !== 'absolute') {
-    canvas.addEventListener('click', onMouseClick);
-
-    canvas.style.position = 'absolute';
-    // const top = (shiftValue.y - 1) * 100;
-    // canvas.style.top = `-${top}%`;
-    canvas.style.top = 0;
-    canvas.style.left = '0';
-    // canvas.style.minWidth = '100vw';
-    // canvas.style.minHeight = '100vw';
+    return { timeHandler, timeSliderEl };
   }
-  const variableCount = 4;
 
-  const getInitial = (bodies) => {
-    const dataArray = [];
-    bodies.forEach((body, index) => {
-      dataArray[index * variableCount] = body.position.x;
-      dataArray[index * variableCount + 1] = body.position.y;
-      dataArray[index * variableCount + 2] = body.velocity.x;
-      dataArray[index * variableCount + 3] = body.velocity.y;
-    });
-    return dataArray;
-  };
+  setupScenarioSelectInput(initialScenario) {
+    const scenarioSelectEl = document.getElementById('scenario-select');
+    scenarioSelectEl.value = initialScenario;
+    scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
 
-  const updateBodies = (y) => {
-    let bodyIndex = 0;
-    y.forEach(value, index) => {
-      if (index % variableCount !== 0) { return; }
+    const handleScenarioSelect = (event) => {
+      console.log(handleScenarioSelect);
+      this.currentScenario = event.currentTarget.value;
 
-      const bodyDataIndex = bodyIndex * variableCount;
-      const body = physicsBodies[bodyIndex];
-      if (typeof body !== 'object') {
-        console.warn('THIS BODY WAS NOT DEFINED'); // eslint-disable-line
-      }
-      body.position.x = y[bodyDataIndex];
-      body.position.y = y[bodyDataIndex + 1];
-      body.velocity.x = y[bodyDataIndex + 2];
-      body.velocity.y = y[bodyDataIndex + 3];
-      bodyIndex += 1;
-    });
-  };
+      // Reset sliders
+      this.handleTimeSlider();
 
-  const differentialEquation = (t, y) => {
-    updateBodies(y);
-    const data = [];
-    physicsBodies.forEach((b, index) => {
-      const body = b;
-      const a = body.getAcceleration(physicsBodies, gravitationConstant);
+      this.setInitialTimeScale(this.currentScenario);
 
-      const v = body.getVelocityWithDelta(1, a);
-      body.velocity = v;
+      GravitySimulation.removePhysicsBodies(this.physicsBodies);
+      this.physicsBodies = []
+      this.physicsBodies = this.generatePhysicsBodies(planetData, this.currentScenario);
 
-      body.position.x += v.x;
-      body.position.y += v.y;
+      this.drawPhysicsBodies(this.physicsBodies);
 
-      body.acceleration = a;
-      data[(index * variableCount)] = v.x;
-      data[(index * variableCount) + 1] = v.y;
-      data[(index * variableCount) + 2] = a.x;
-      data[(index * variableCount) + 3] = a.y;
+      console.log('this.physicsBodies', this.physicsBodies);
+    };
+
+    Object.keys(planetData).forEach((scenarioKey) => {
+      const opt = document.createElement('option');
+      opt.value = scenarioKey;
+      opt.innerHTML = scenarioKey;
+      scenarioSelectEl.appendChild(opt);
     });
 
-    return data;
-  };
+    scenarioSelectEl.addEventListener('change', handleScenarioSelect);
+  }
 
-  const initialConditions = getInitial(physicsBodies);
-  const range = [0, Math.max(1000 * parseInt(timeScale, 10), 1000)];
+  generatePhysicsBodies(bodyData, scenarioKey) {
+    return bodyData[scenarioKey].map((data) => {
+      const planet = JSON.parse(JSON.stringify(data));
+      planet.mass *= this.massUnitMultiplier;
+      planet.position.x *= this.distanceUnitMultiplier;
+      planet.position.y *= this.distanceUnitMultiplier;
+      planet.position.z *= this.distanceUnitMultiplier;
+      planet.scene = this.scene;
+      planet.scene2 = this.scene2;
+      planet.offsetX = this.offset.x;
+      planet.offsetY = this.offset.y;
 
-  const steps = Math.max(100 * parseInt(timeScale, 10), 20);
-  rungeKutta(differentialEquation, initialConditions, range, steps);
+      return new PhysicsBody(planet);
+    });
+  }
 
-  handleYearCount();
+  handleYearCount() {
+    const earth = this.physicsBodies.find((body) => body.name === 'Earth');
+    const sun = this.physicsBodies.find((body) => body.name === 'Sun');
+    const earthPosition = ((earth || {}).position || {});
+    const sunPosition = ((sun || {}).position || {});
+    const isInXWindow = earthPosition.x > sunPosition.x;
+    if (isInXWindow && !this.isYearCounted) {
+      this.yearCount += 1;
+      this.isYearCounted = true;
+      const yearEl = document.getElementById('year-count')
+        .getElementsByTagName('span')[0];
+      yearEl.innerHTML = this.yearCount;
+    }
+    if (earthPosition.x < sunPosition.x) {
+      this.isYearCounted = false;
+    }
+  }
 
-  const scaleEl = document.getElementById('scale-checkbox').getElementsByTagName('input')[0];
-  isScaled = scaleEl.checked;
+  setInitialTimeScale(scenarioKey) {
+    if (scenarioKey === 'Chaotic') {
+      this.timeScale = 2500;
+    } else {
+      this.timeScale = 10;
+    }
+    this.intitialTimeScale = this.timeScale;
+  }
 
-  physicsBodies.forEach((body) => body.updatePosition(denormalizer, isScaled));
-  physicsBodies.forEach((body) => body.updateForceLines(denormalizer));
+  animate() {
+    if (this.physicsBodies.length <= 0) { return; }
 
-  character.animate(deltaTime);
-  introText.animate();
+    GravityCalculator.calculateBodyGravity({
+      physicsBodies: this.physicsBodies,
+      timeScale: this.timeScale,
+      gravitationConstant: this.gravitationConstant,
+    });
 
-  introText2.animate();
+    this.handleYearCount();
 
-  controls.update(deltaTime);
-  mainRender.clear = true;
-  composer.render(deltaTime);
-  stats.end();
+    const scaleEl = document.getElementById('scale-checkbox').getElementsByTagName('input')[0];
+    this.isScaled = scaleEl.checked;
+
+    this.physicsBodies.forEach((body) => body.updatePosition(this.denormalizer, this.isScaled));
+    this.physicsBodies.forEach((body) => body.updateForceLines(this.denormalizer));
+  }
 }
 
-function main(onMouseClickCallback) {
-  onMouseClick = onMouseClickCallback;
-
-  setup();
-  animate();
-
-  return {
-    getPhysicsBodies: () => physicsBodies,
-    getIsScaled: () => isScaled,
-    getDenormalizer: () => denormalizer,
-    getZoom: () => zoom,
-    getShiftValue: () => shiftValue,
-  };
-}
-
-export default main;
+export default GravitySimulation;

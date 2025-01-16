@@ -11,18 +11,17 @@ Gravity Simulation (App)
           <div class="slider-info">
             &#916;t
           </div>
-          <div class="slider">
-            <div
-              id="time-slider"
-              class="slider--handle"
-            >
-              <div class="slider--handle-scaler">
-                <div
-                  class="slider--handle-box"
-                />
-              </div>
+          <div
+            id="time-slider"
+            class="slider--handle"
+          >
+            <div class="slider--handle-scaler">
+              <div
+                class="slider--handle-box"
+              />
             </div>
           </div>
+          <div class="slider" />
         </div>
       </div>
     </div>
@@ -159,7 +158,7 @@ Gravity Simulation (App)
 </template>
 
 <script>
-import gravitySimulation from './helpers/gravitySimulation';
+import mitchWorld from './helpers/index';
 import handleSlider from './helpers/handleSlider';
 
 export default {
@@ -186,7 +185,7 @@ export default {
   },
 
   mounted() {
-    this.simulation = gravitySimulation(this.onCanvasClick);
+    this.simulation = mitchWorld(this.onCanvasClick);
   },
 
   destroyed() {
@@ -663,10 +662,11 @@ export default {
   .slider--handle {
     position: absolute;
     top: 70%;
-    width: 1.5vw;
-    height: 1.5vw;
-    right: -6px;
+    width: 100%;
+    height: 7%;
+    right: 0;
     cursor: pointer;
+    z-index: 1;
   }
   .slider--handle-zoom {
     top: 50%;
@@ -813,6 +813,7 @@ export default {
     text-transform: uppercase;
     display: flex;
     pointer-events: all;
+    opacity: 0;
   }
 
   .scale-checkbox > .checkbox-wrapper-3 {

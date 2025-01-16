@@ -21,6 +21,7 @@ class PhysicsBody {
     offsetX = -100,
     offsetY = 0,
     scene,
+    scene2,
   }) {
     this.offsetX = offsetX;
     this.offsetY = offsetY + 20;
@@ -40,6 +41,7 @@ class PhysicsBody {
     this.outline = null;
     this.forceLineMesh = null;
     this.lineWidth = 2;
+    this.scene2 = scene2;
   }
 
   updateBoxHeadAndTail(headVector, tailVector, pos) {
@@ -287,18 +289,23 @@ class PhysicsBody {
     });
   }
 
+  remove() {
+    this.scene.remove(this.mesh);
+    this.scene.remove(this.outline);
+    this.scene.remove(this.forceLineMesh);
+
+    this.scene2.remove(this.mesh);
+  }
+
   async draw(denormalizer, isScaled = true) {
     const d = denormalizer;
     const s = this.getSize(d.windowScale.x, isScaled);
 
     this.mesh = await this.drawSphere(s, this.hexColor(), denormalizer);
+    this.scene2.add(this.mesh);
 
     this.outline = await solidify(this.mesh.geometry, this.scene);
 
-    // if (isScaled) {
-    // } else {
-    //   this.outline = await this.drawSphere(circleSize, this.hexColor(), denormalizer);
-    // }
     return this.mesh;
   }
 }

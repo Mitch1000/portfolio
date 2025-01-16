@@ -1,6 +1,11 @@
 class SliderHandler {
   constructor(sliderEl) {
     this.slider = sliderEl;
+
+    this.sliderExtension = 10;
+
+    console.log('this.slider', this.slider);
+
     this.initialPosition = this.slider.getBoundingClientRect().top;
 
     this.sliderClickedPos = 0;
@@ -16,17 +21,31 @@ export default function handleSlider(updateCallBack, sliderEl, horizontal = fals
   const handleMouseMove = (moveEvent) => {
     if (!sh.isSliderClicked) { return; }
     const mousePos = horizontal ? moveEvent.clientX : moveEvent.clientY;
-    sh.newTop = sh.currentPosition + (mousePos - sh.sliderClickedPos);
+    const newPosition = sh.currentPosition + (mousePos - sh.sliderClickedPos);
     sh.slideValue = (sh.sliderClickedPos - mousePos);
 
-    const translate = horizontal ? 'translateX' : 'translateY';
-    sh.slider.style.transform = `${translate}(${sh.newTop}px)`;
+    if (horizontal) {
+      sh.newTop = newPosition;
+      const translate = 'translateX';
+      sh.slider.style.transform = `${translate}(${sh.newTop}px)`;
+    } else {
+      const { top, height } = sh.slider.nextElementSibling.getBoundingClientRect();
+
+      const maximumSliderPosition = (top + sh.sliderExtension) * -1;
+      const minimumSliderPosition = (height - top + sh.sliderExtension);
+      if (newPosition < minimumSliderPosition && newPosition > maximumSliderPosition) {
+        sh.newTop = newPosition;
+        const translate = 'translateY';
+        sh.slider.style.transform = `${translate}(${sh.newTop}px)`;
+      }
+    }
   };
 
   const handleMouseUp = () => {
     sh.isSliderClicked = false;
     sh.currentPosition = sh.newTop;
-    updateCallBack(sh.slideValue, sh.initialPosition, sliderEl);
+
+    updateCallBack(sh.newTop * -1, sh.initialPosition, sliderEl);
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
