@@ -607,15 +607,17 @@ export default {
     text-transform: initial;
     cursor: pointer;
   }
+
   .scenario-select-container {
     position: fixed;
     top: 2vh;
-    left: 76vw;
+    left: 0;
     width: 100vw;
-    height: 100vh;
+    height: auto;
     z-index: 2001;
     pointer-events: none;
     overflow-y: hidden;
+    display: flex;
   }
   .info-box-container {
     position: absolute;
@@ -657,6 +659,8 @@ export default {
     pointer-events: initial;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-size: 16px;
+    margin-right: 4vw;
+    margin-left: auto;
   }
 
   .slider--handle {
@@ -717,7 +721,7 @@ export default {
 
   .sliders-holder {
     max-width: 30px;
-    margin-right: 4%;
+    margin-right: 4vw;
     margin-top: 24px;
     pointer-events: all;
   }
