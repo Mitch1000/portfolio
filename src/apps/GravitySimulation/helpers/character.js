@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import handleSlider from './handleSlider';
 
 class Character {
   constructor({
@@ -23,40 +22,37 @@ class Character {
     this.loadedCallback = loadedCallback;
     this.clips = [];
 
-    const updateAnimation = (sliderValue, initialPosition) => {
-      console.log('sliderValue', sliderValue, initialPosition);
-      const currentActionName = this.action.getClip().name;
-      console.log('currentActionName', currentActionName);
-
-      if (sliderValue > 30) {
-        if (currentActionName !== 'Running') {
-          this.setToRunAnimation(this.clips);
-        }
-        return;
-      }
-
-      if (sliderValue > 2) {
-        if (currentActionName !== 'Walk') {
-          this.setToWalkAnimation(this.clips);
-        }
-        return;
-      }
-
-      if (sliderValue < 2 && currentActionName !== 'Idle.001') {
-        this.setToIdleAnimation(this.clips);
-      }
-    };
-
-    const timeSliderEl = document.getElementById('time-slider');
-    handleSlider(updateAnimation, timeSliderEl);
-
     this.initModel();
+  }
+
+  updateAnimation(sliderValue) {
+    const currentActionName = this.action.getClip().name;
+
+    if (sliderValue > 45) {
+      if (currentActionName !== 'Running') {
+        this.setToRunAnimation(this.clips);
+      }
+      return;
+    }
+
+    if (sliderValue > 2) {
+      if (currentActionName !== 'Walk') {
+        this.setToWalkAnimation(this.clips);
+      }
+      return;
+    }
+
+    if (sliderValue < 2 && currentActionName !== 'Idle.001') {
+      this.setToIdleAnimation(this.clips);
+    }
   }
 
   setAnimation(animationName, clips) {
     if (this.action) {
-      this.action.reset();
       this.action.stop();
+      this.action.reset()
+        .fadeOut(1)
+        .play();
     }
 
     const clip = THREE.AnimationClip.findByName(clips, animationName);
@@ -66,7 +62,6 @@ class Character {
   }
 
   setToWalkAnimation(clips) {
-    console.log('setToWalkAnimation');
     this.animationFrameCount = 0;
     this.animationLoopFrame = 448; // Running frames
 
@@ -90,15 +85,12 @@ class Character {
   initModel() {
     const loader = new GLTFLoader();
     loader.load(
-      '/Character.glb',
+      '/assets/Character.glb',
       async (glb) => {
         this.model = glb.scene;
         this.mixer = new THREE.AnimationMixer(this.model);
 
         this.clips = glb.animations;
-        console.log('glb.animations', glb.animations);
-
-        console.log('glb.animations', glb.animations);
 
         this.model.scale.setScalar(80);
         this.model.rotation.set(0, (210 * (Math.PI / 180)), 0);
@@ -127,8 +119,7 @@ class Character {
   animate(deltaTime) {
     if (this.mixer instanceof THREE.AnimationMixer) {
       this.mixer.update(deltaTime);
-      // this.action
-      //   .play();
+
       this.animationFrameCount = 0;
 
       this.animationFrameCount += 1;
