@@ -39,6 +39,7 @@
   "dependencies": {
     "babel-loader": "^9.2.1",
     "camera-controls": "^2.9.0",
+    "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "install": "^0.13.0",
     "npm": "^10.5.2",
