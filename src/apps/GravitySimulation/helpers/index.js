@@ -13,6 +13,7 @@ import { CrtShader } from './tvShader';
 import Character from './character';
 import GravitySimulation from './gravitySimulation';
 import IntroText from './introText';
+import handleSlider from './handleSlider';
 
 // N⋅m^2⋅kg^2
 // Newtons, meter, kilogram - These are the units we are using.
@@ -89,6 +90,25 @@ function initControl(cam) {
   return ctrl;
 }
 
+function handleTimeSlider(timeSliderCallback) {
+  const timeSliderEl = document.getElementById('time-slider');
+  return handleSlider(timeSliderCallback, timeSliderEl);
+}
+
+function handleScenarioSelect(initialScenario, scenarioKeys, scenarioSelectCallback) {
+  const scenarioSelectEl = document.getElementById('scenario-select');
+  scenarioSelectEl.value = initialScenario;
+  scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
+  scenarioSelectEl.addEventListener('change', scenarioSelectCallback);
+
+  scenarioKeys.forEach((scenarioKey) => {
+    const opt = document.createElement('option');
+    opt.value = scenarioKey;
+    opt.innerHTML = scenarioKey;
+    scenarioSelectEl.appendChild(opt);
+  });
+}
+
 function setup() {
   renderer = initRenderer();
   renderer.autoClear = false;
@@ -106,10 +126,12 @@ function setup() {
     scene2.add(model);
   };
 
+  const initialScenario = 'Solar System';
   gravitySimulation = new GravitySimulation({
     offset: new THREE.Vector3(offsetX, offsetY, 0),
     scene,
     scene2,
+    currentScenario: initialScenario,
   });
 
   character = new Character({
@@ -154,6 +176,24 @@ function setup() {
 
   initLight(scene);
   initLight(scene2);
+
+  const timeSliderCallback = (sliderValue) => {
+    character.updateAnimation(sliderValue);
+    gravitySimulation.updateTimeConstant(sliderValue);
+  };
+
+  const timeSlider = handleTimeSlider(timeSliderCallback);
+
+  const scenarioSelectCallback = (event) => {
+    timeSlider.reset();
+    gravitySimulation.updateCurrentScenario(event);
+  };
+
+  handleScenarioSelect(
+    initialScenario,
+    GravitySimulation.getScenariosList(),
+    scenarioSelectCallback,
+  );
 
   const clearPass = new ClearPass();
 

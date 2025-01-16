@@ -18,7 +18,7 @@ class GravitySimulation {
     isScaled = true,
     drawDistance = 50000,
     offset = new Vector3({ x: 0, y: 0, z: 0 }),
-    timeSlider = {},
+    resetTimeSlider = () => {},
     scene,
     scene2,
   }) {
@@ -34,6 +34,7 @@ class GravitySimulation {
     this.offset = offset;
     this.drawDistance = drawDistance;
     this.isScaled = isScaled;
+    this.resetTimeSlider = resetTimeSlider;
     this.scene = scene;
     this.scene2 = scene2;
 
@@ -53,9 +54,6 @@ class GravitySimulation {
     this.setInitialTimeScale(currentScenario);
     this.denormalizer = new Denormalizer(windowScale, diagramScale);
 
-    this.handleTimeSlider();
-    this.setupScenarioSelectInput(currentScenario);
-
     this.drawPhysicsBodies(this.physicsBodies);
   }
 
@@ -69,54 +67,31 @@ class GravitySimulation {
       .forEach((body) => body.drawForceVector(this.denormalizer, this.drawDistance));
   }
 
-  handleTimeSlider() {
-    const updateTimeConstant = (sliderValue) => {
-      const { intitialTimeScale } = this;
+  updateTimeConstant(sliderValue) {
+    const { intitialTimeScale } = this;
 
-      const getTimeScale = () => (Math.exp(1) * sliderValue * (intitialTimeScale / 35) * 5);
+    const getTimeScale = () => (Math.exp(1) * sliderValue * (intitialTimeScale / 35) * 5);
 
-      this.timeScale = getTimeScale();
-    };
-    const timeSliderEl = document.getElementById('time-slider');
-    timeSliderEl.style.transform = 'translateY(0px)';
-
-    const timeHandler = handleSlider(updateTimeConstant, timeSliderEl);
-    console.log('timeHandler', timeHandler);
-
-    return { timeHandler, timeSliderEl };
+    this.timeScale = getTimeScale();
   }
 
-  setupScenarioSelectInput(initialScenario) {
-    const scenarioSelectEl = document.getElementById('scenario-select');
-    scenarioSelectEl.value = initialScenario;
-    scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
+  updateCurrentScenario(event) {
+    this.currentScenario = event.currentTarget.value;
 
-    const handleScenarioSelect = (event) => {
-      console.log(handleScenarioSelect);
-      this.currentScenario = event.currentTarget.value;
+    // Reset sliders
+    this.resetTimeSlider();
 
-      // Reset sliders
-      this.handleTimeSlider();
+    this.setInitialTimeScale(this.currentScenario);
 
-      this.setInitialTimeScale(this.currentScenario);
+    GravitySimulation.removePhysicsBodies(this.physicsBodies);
+    this.physicsBodies = [];
+    this.physicsBodies = this.generatePhysicsBodies(planetData, this.currentScenario);
 
-      GravitySimulation.removePhysicsBodies(this.physicsBodies);
-      this.physicsBodies = []
-      this.physicsBodies = this.generatePhysicsBodies(planetData, this.currentScenario);
+    this.drawPhysicsBodies(this.physicsBodies);
+  }
 
-      this.drawPhysicsBodies(this.physicsBodies);
-
-      console.log('this.physicsBodies', this.physicsBodies);
-    };
-
-    Object.keys(planetData).forEach((scenarioKey) => {
-      const opt = document.createElement('option');
-      opt.value = scenarioKey;
-      opt.innerHTML = scenarioKey;
-      scenarioSelectEl.appendChild(opt);
-    });
-
-    scenarioSelectEl.addEventListener('change', handleScenarioSelect);
+  static getScenariosList() {
+    return Object.keys(planetData);
   }
 
   generatePhysicsBodies(bodyData, scenarioKey) {

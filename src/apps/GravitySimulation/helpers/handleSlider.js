@@ -1,10 +1,11 @@
 class SliderHandler {
   constructor(sliderEl) {
     this.slider = sliderEl;
+    this.setInitial();
+  }
 
+  setInitial() {
     this.sliderExtension = 10;
-
-    console.log('this.slider', this.slider);
 
     this.initialPosition = this.slider.getBoundingClientRect().top;
 
@@ -13,6 +14,11 @@ class SliderHandler {
     this.currentPosition = 0;
     this.newTop = 0;
     this.slideValue = 0;
+  }
+
+  reset() {
+    this.setInitial();
+    this.slider.style.transform = 'translateX(0px) translateY(0px)';
   }
 }
 
