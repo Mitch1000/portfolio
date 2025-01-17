@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+
 
 class Character {
   constructor({
@@ -84,6 +86,11 @@ class Character {
 
   initModel() {
     const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+
+    dracoLoader.setDecoderPath('/');
+    loader.setDRACOLoader(dracoLoader);
+
     loader.load(
       '/assets/Character.glb',
       async (glb) => {
