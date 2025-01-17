@@ -699,8 +699,8 @@ export default {
 
   @media (width <= 1000px) {
     .slider--handle-scaler {
-      width: 5vw;
-      height: 5vw;
+      width: 4vw;
+      height: 4vw;
       padding: 0 20px;
     }
   }
