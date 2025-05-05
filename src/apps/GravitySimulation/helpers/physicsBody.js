@@ -18,13 +18,10 @@ class PhysicsBody {
     scale = 1,
     isToDrawForceVector = true,
     lightingTones = 2,
-    offsetX = -100,
-    offsetY = 0,
+    offset = new THREE.Vector3({ x: -100, y: 20, z: 0 }),
     scene,
-    scene2,
   }) {
-    this.offsetX = offsetX;
-    this.offsetY = offsetY + 20;
+    this.offset = offset;
     this.velocity = velocity;
     this.lightingTones = lightingTones;
     this.position = position;
@@ -41,7 +38,6 @@ class PhysicsBody {
     this.outline = null;
     this.forceLineMesh = null;
     this.lineWidth = 2;
-    this.scene2 = scene2;
   }
 
   updateBoxHeadAndTail(headVector, tailVector, pos) {
@@ -60,20 +56,20 @@ class PhysicsBody {
     const updateToVector = (i, vector, isHead = false) => {
       const positionArrayIndex = i * 3;
 
-      const absY = Math.abs(vector.y - this.offsetY);
-      const absX = Math.abs(vector.x - this.offsetX);
+      const absY = Math.abs(vector.y - this.offset.y);
+      const absX = Math.abs(vector.x - this.offset.x);
 
       const rat = absY < absX
         ? absY / absX
         : absX / absY;
 
       let xSign = vector.x === 0
-        ? Math.sign(headVector.x - this.offsetX)
-        : Math.sign(vector.x - this.offsetX);
+        ? Math.sign(headVector.x - this.offset.x)
+        : Math.sign(vector.x - this.offset.x);
 
       let ySign = vector.y === 0
-        ? Math.sign(headVector.y - this.offsetY)
-        : Math.sign(vector.y - this.offsetY);
+        ? Math.sign(headVector.y - this.offset.y)
+        : Math.sign(vector.y - this.offset.y);
 
       if (xSign === 0) {
         xSign = 1;
@@ -124,7 +120,7 @@ class PhysicsBody {
   setPosition(mesh, position, denormalizer) {
     const p = position;
     const d = denormalizer;
-    mesh.position.set(d.dnx(p.x) + this.offsetX, d.dny(p.y) + this.offsetY, d.dnz(p.z));
+    mesh.position.set(d.dnx(p.x) + this.offset.x, d.dny(p.y) + this.offset.y, d.dnz(p.z));
     mesh.updateMatrix();
     return mesh.position;
   }
@@ -138,6 +134,8 @@ class PhysicsBody {
     const sphere = new THREE.Mesh(geometry, material);
 
     this.scene.add(sphere);
+
+    this.scene.children[this.scene.children.length - 1].name = `Planet ${this.name}`;
 
     sphere.matrixAutoUpdate = false;
     this.setPosition(sphere, this.position, denormalizer);
@@ -162,6 +160,7 @@ class PhysicsBody {
     });
 
     const line = new THREE.Mesh(geometry, material);
+    line.name = `Line ${this.name}`;
 
     const position = line.geometry.getAttribute('position');
 
@@ -215,14 +214,14 @@ class PhysicsBody {
     const color = 'crimson';
 
     const originVector = new THREE.Vector3(
-      denormalizer.dnx(this.position.x) + this.offsetX,
-      denormalizer.dny(this.position.y) + this.offsetY,
+      denormalizer.dnx(this.position.x) + this.offset.x,
+      denormalizer.dny(this.position.y) + this.offset.y,
       denormalizer.dny(this.position.z),
     );
 
     const targetVector = new THREE.Vector3(
-      0 + this.offsetX,
-      0 + this.offsetY,
+      0 + this.offset.x,
+      0 + this.offset.y,
       0,
     );
 
@@ -244,14 +243,14 @@ class PhysicsBody {
     if (!hasArrow) { return; }
 
     const originVector = new THREE.Vector3(
-      denormalizer.dnx(this.position.x) + this.offsetX,
-      denormalizer.dny(this.position.y) + this.offsetY,
+      denormalizer.dnx(this.position.x) + this.offset.x,
+      denormalizer.dny(this.position.y) + this.offset.y,
       denormalizer.dnz(this.position.z),
     );
 
     const targetVector = new THREE.Vector3(
-      0 + this.offsetX,
-      0 + this.offsetY,
+      0 + this.offset.x,
+      0 + this.offset.y,
       0,
     );
 
@@ -293,8 +292,6 @@ class PhysicsBody {
     this.scene.remove(this.mesh);
     this.scene.remove(this.outline);
     this.scene.remove(this.forceLineMesh);
-
-    this.scene2.remove(this.mesh);
   }
 
   async draw(denormalizer, isScaled = true) {
@@ -302,9 +299,13 @@ class PhysicsBody {
     const s = this.getSize(d.windowScale.x, isScaled);
 
     this.mesh = await this.drawSphere(s, this.hexColor(), denormalizer);
-    this.scene2.add(this.mesh);
 
-    this.outline = await solidify(this.mesh.geometry, this.scene);
+    const { geometry } = this.mesh;
+
+    this.outline = await solidify({
+      geometry,
+      scene: this.scene,
+    });
 
     return this.mesh;
   }

@@ -3,8 +3,12 @@ import TOON_TONE3 from '../../../assets/threeTone.jpg';
 import TOON_TONE2 from '../../../assets/twoTone.jpg';
 import TOON_TONE1 from '../../../assets/oneTone.jpg';
 // import { CrtShader } from './tvShader';
-
-function solidify(geometry, scene, thickness = 1.4, color = { x: 0, y: 0, z: 0 }) {
+function solidify({
+  geometry,
+  scene,
+  thickness = 1.4,
+  color = { x: 0, y: 0, z: 0 },
+}) {
   const { x, y, z } = color;
 
   // vec3 xyz = vec3(0.3213,0.1670,0.0429);
@@ -21,6 +25,7 @@ function solidify(geometry, scene, thickness = 1.4, color = { x: 0, y: 0, z: 0 }
   });
 
   const outline = new THREE.Mesh(geometry, shaderMaterial);
+
   scene.add(outline);
   return outline;
 }
@@ -38,5 +43,4 @@ async function getToonMaterial(color, tones = 3) {
     gradientMap: texture,
   });
 }
-
 export { solidify, getToonMaterial };

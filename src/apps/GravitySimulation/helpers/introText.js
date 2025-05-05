@@ -6,7 +6,6 @@ import { getToonMaterial, solidify } from './toonLighting';
 class IntroText {
   constructor({
     scene,
-    scene2,
     textString = 'Mitch World',
     kerning = 12,
     size = 500,
@@ -20,7 +19,6 @@ class IntroText {
     glitchColor = { x: 0.5, y: 0.1670, z: 0.0429 },
   }) {
     this.scene = scene;
-    this.scene2 = scene2;
     this.textString = textString;
     this.kerning = kerning;
     this.frameCount = 0;
@@ -89,10 +87,20 @@ class IntroText {
 
           const text = new THREE.Mesh(geometry, material);
 
-          const outline = solidify(geometry, this.scene, 8.1);
+          const outline = solidify({
+            geometry,
+            scene: this.scene,
+            thickness: 8.1,
+          });
 
           if (this.glitch) {
-            const glitch = solidify(geometry, this.scene, 0.1, glitchColor);
+            const glitch = solidify({
+              geometry,
+              scene: this.scene,
+              thickness: 0.1,
+              color: glitchColor,
+            });
+
             glitch.geometry.translate(0, 0, -70);
             const backdrop = new THREE.Mesh(geometry, material2);
             backdrop.geometry.translate(0, 0, -40);
@@ -101,7 +109,6 @@ class IntroText {
           }
 
           this.scene.add(text);
-          this.scene2.add(text);
 
           this.messages.push(text);
           this.outlines.push(outline);
@@ -117,8 +124,8 @@ class IntroText {
     });
   }
 
-  draw() {
-    this.drawText(20, 249);
+  async draw() {
+    return this.drawText(20, 249);
   }
 
   animate() {

@@ -1,5 +1,4 @@
 import { Vector3 } from 'three';
-import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 import Denormalizer from './denormalizer';
 import GravityCalculator from './gravityCalculator';
@@ -20,7 +19,6 @@ class GravitySimulation {
     offset = new Vector3({ x: 0, y: 0, z: 0 }),
     resetTimeSlider = () => {},
     scene,
-    scene2,
   }) {
     this.gravitationConstant = gravitationConstant;
     this.currentScenario = currentScenario;
@@ -36,7 +34,6 @@ class GravitySimulation {
     this.isScaled = isScaled;
     this.resetTimeSlider = resetTimeSlider;
     this.scene = scene;
-    this.scene2 = scene2;
 
     this.physicsBodies = this.generatePhysicsBodies(planetData, this.currentScenario);
 
@@ -53,18 +50,18 @@ class GravitySimulation {
 
     this.setInitialTimeScale(currentScenario);
     this.denormalizer = new Denormalizer(windowScale, diagramScale);
-
-    this.drawPhysicsBodies(this.physicsBodies);
   }
 
   static removePhysicsBodies(physicsBodies) {
     physicsBodies.forEach((body) => body.remove());
   }
 
-  drawPhysicsBodies(physicsBodies) {
-    physicsBodies.forEach((body) => body.draw(this.denormalizer, this.isScaled));
-    physicsBodies
+  drawPhysicsBodies() {
+    const drawPromises = this.physicsBodies
+      .map((body) => body.draw(this.denormalizer, this.isScaled));
+    this.physicsBodies
       .forEach((body) => body.drawForceVector(this.denormalizer, this.drawDistance));
+    return Promise.all(drawPromises);
   }
 
   updateTimeConstant(sliderValue) {
@@ -87,7 +84,7 @@ class GravitySimulation {
     this.physicsBodies = [];
     this.physicsBodies = this.generatePhysicsBodies(planetData, this.currentScenario);
 
-    this.drawPhysicsBodies(this.physicsBodies);
+    return this.drawPhysicsBodies();
   }
 
   static getScenariosList() {
@@ -102,9 +99,7 @@ class GravitySimulation {
       planet.position.y *= this.distanceUnitMultiplier;
       planet.position.z *= this.distanceUnitMultiplier;
       planet.scene = this.scene;
-      planet.scene2 = this.scene2;
-      planet.offsetX = this.offset.x;
-      planet.offsetY = this.offset.y;
+      planet.offset = this.offset;
 
       return new PhysicsBody(planet);
     });
@@ -153,6 +148,18 @@ class GravitySimulation {
 
     this.physicsBodies.forEach((body) => body.updatePosition(this.denormalizer, this.isScaled));
     this.physicsBodies.forEach((body) => body.updateForceLines(this.denormalizer));
+  }
+
+  getDenormalizer() {
+    return this.denormalizer;
+  }
+
+  getIsScaled() {
+    return this.isScaled;
+  }
+
+  getPhysicsBodies() {
+    return this.physicsBodies;
   }
 }
 

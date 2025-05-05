@@ -2,14 +2,12 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
-
 class Character {
   constructor({
     renderer,
     camera,
     controls,
     offset,
-    loadedCallback,
   }) {
     this.renderer = renderer;
     this.camera = camera;
@@ -21,10 +19,7 @@ class Character {
     this.offsetX = offset.x;
     this.offsetY = offset.y;
     this.offsetZ = offset.z;
-    this.loadedCallback = loadedCallback;
     this.clips = [];
-
-    this.initModel();
   }
 
   updateAnimation(sliderValue) {
@@ -91,36 +86,38 @@ class Character {
     dracoLoader.setDecoderPath('/');
     loader.setDRACOLoader(dracoLoader);
 
-    loader.load(
-      '/assets/Character.glb',
-      async (glb) => {
-        this.model = glb.scene;
-        this.mixer = new THREE.AnimationMixer(this.model);
+    return new Promise((resolve, reject) => {
+      loader.load(
+        '/assets/Character.glb',
+        async (glb) => {
+          this.model = glb.scene;
+          this.mixer = new THREE.AnimationMixer(this.model);
 
-        this.clips = glb.animations;
+          this.clips = glb.animations;
 
-        this.model.scale.setScalar(80);
-        this.model.rotation.set(0, (210 * (Math.PI / 180)), 0);
-        this.model.position.set(
-          window.innerWidth * 0.15 + this.offsetX,
-          0 + this.offsetY,
-          -30 + this.offsetZ,
-        );
-        this.setToIdleAnimation(glb.animations);
-        this.action.setLoop(THREE.LoopRepeat);
-        this.action.clampWhenFinished = true;
-        this.action.enable = true;
-        this.action.play();
+          this.model.scale.setScalar(80);
+          this.model.rotation.set(0, (210 * (Math.PI / 180)), 0);
+          this.model.position.set(
+            window.innerWidth * 0.15 + this.offsetX,
+            0 + this.offsetY,
+            -30 + this.offsetZ,
+          );
+          this.setToIdleAnimation(glb.animations);
+          this.action.setLoop(THREE.LoopRepeat);
+          this.action.clampWhenFinished = true;
+          this.action.enable = true;
+          this.action.play();
 
-        this.loadedCallback(this.model);
-      },
-      () => {
-        // console.log(`${Math.max((xhr.loaded / xhr.total) * 100, 100)} loaded.`);
-      },
-      (error) => {
-        console.error('An error happened:', error);
-      },
-    );
+          resolve(this.model);
+        },
+        () => {
+        },
+        (error) => {
+          reject(error);
+          console.warn('An error happened when loading the Character model:', error);
+        },
+      );
+    });
   }
 
   animate(deltaTime) {
