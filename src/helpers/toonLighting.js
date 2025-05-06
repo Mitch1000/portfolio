@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import TOON_TONE3 from '../../../assets/threeTone.jpg';
-import TOON_TONE2 from '../../../assets/twoTone.jpg';
-import TOON_TONE1 from '../../../assets/oneTone.jpg';
+import TOON_TONE3 from '../assets/threeTone.jpg';
+import TOON_TONE2 from '../assets/twoTone.jpg';
+import TOON_TONE1 from '../assets/oneTone.jpg';
 // import { CrtShader } from './tvShader';
 function solidify({
   geometry,

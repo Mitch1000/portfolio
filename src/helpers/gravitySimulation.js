@@ -161,6 +161,6 @@ class GravitySimulation {
   getPhysicsBodies() {
     return this.physicsBodies;
   }
-}
+};
 
 export default GravitySimulation;

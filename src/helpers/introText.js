@@ -108,6 +108,8 @@ class IntroText {
             this.backdrops.push(backdrop);
           }
 
+          text.name = `Text - ${this.textString} (${character})`;
+
           this.scene.add(text);
 
           this.messages.push(text);

@@ -1,27 +1,19 @@
 const path = require('path');
-const { VueLoaderPlugin } = require('vue-loader');
 
 module.exports = {
   entry: './src/index.js',
   mode: 'development',
   devtool: 'source-map',
-  resolve: {
-    alias: {
-      vue: 'vue/dist/vue.js',
-    },
-  },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: 'babel-loader',
-      },
-      {
-        // vue-loader config to load `.vue` files or single file components.
-        test: /\.vue$/,
-        loader: 'vue-loader',
-        options: {
-          hotReload: true,
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options:{
+            presets: ["@babel/preset-env", "@babel/preset-react"],
+          }
         },
       },
       {
@@ -42,7 +34,6 @@ module.exports = {
   },
   plugins: [
     // make sure to include the plugin for the magic
-    new VueLoaderPlugin(),
   ],
   output: {
     filename: 'main.js',

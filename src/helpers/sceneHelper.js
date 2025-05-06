@@ -1,4 +1,6 @@
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
+import { Fullscreen, Container, Root, Text } from '@pmndrs/uikit'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import * as THREE from 'three';
 import CameraControls from 'camera-controls';
@@ -26,11 +28,14 @@ export default class SceneHelper {
   rendererCompose() {
     const clearPass = new ClearPass();
 
-    this.mainRender = new RenderPass(this.scene, this.camera);
-    this.mainRender.clear = false;
 
-    const planetsRender = new RenderPass(this.scene, this.camera);
-    planetsRender.clear = false;
+    this.planetsRender = new RenderPass(this.scene, this.camera);
+    this.planetsRender.clear = false;
+    this.planetsRender.clearDepth = true;
+
+    this.mainRender = new RenderPass(this.uiScene, this.uiCamera);
+    this.mainRender.clear = false;
+    this.mainRender.clearDepth = true;
 
     const screenSize = new THREE.Vector2(window.innerWidth, window.innerHeight);
     const bloomPass = new UnrealBloomPass(screenSize, 1.5, 0.4, 0.85);
@@ -48,7 +53,9 @@ export default class SceneHelper {
     this.composer = new EffectComposer(this.renderer);
     this.composer.setSize(window.innerWidth, window.innerHeight);
 
+
     this.composer.addPass(clearPass);
+    this.composer.addPass(this.planetsRender);
     this.composer.addPass(this.mainRender);
     this.composer.addPass(bloomPass);
     this.composer.addPass(smaaPass);
@@ -87,11 +94,16 @@ export default class SceneHelper {
   }
 
   initRenderer() {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const canvas = document.getElementById('root');
+
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(this.renderer.domElement);
+    // this.renderer.setPixelRatio( window.devicePixelRatio );
     this.renderer.autoClear = false;
+
+    this.renderer.localClippingEnabled = true
+
     return this.renderer;
   }
 
@@ -103,12 +115,14 @@ export default class SceneHelper {
       drawDistance,
     );
 
+    this.uiCamera = new THREE.PerspectiveCamera(70, 1, 0.01, 2000);
+    this.uiCamera.position.z = 1000;
+
     const isMobile = window.innerWidth < 1200;
 
     this.camera.position.x = -0.02;
     this.camera.position.y = 0;
     this.camera.position.z = isMobile ? -1200 : -800;
-    return this.camera;
   }
 
   initControls() {
@@ -119,7 +133,7 @@ export default class SceneHelper {
 
   initScene() {
     this.scene = new THREE.Scene();
-    return this.scene;
+    this.uiScene = new THREE.Scene();
   }
 
   setCanvasPositionOnInitialAnimate(onMouseClick) {
@@ -133,6 +147,51 @@ export default class SceneHelper {
     canvas.style.maxWidth = '100vw';
     canvas.style.maxHeight = '100vh';
     canvas.style.overflow = 'hidden';
+  }
+
+  drawUI() {
+    this.root = new Root(this.uiCamera, this.uiScene, undefined, {
+      flexDirection: "row",
+      padding: 10,
+      gap: 10,
+      sizeX: 500,
+      sizeY: 100,
+    })
+
+    console.log(this.root);
+    this.uiScene.add(this.root);
+
+    const defaultProperties = {
+      backgroundOpacity: 0.5,
+    }
+
+    const container = new Container(
+      {
+          flexGrow: 1,
+          borderColor: "red",
+          hover: { backgroundOpacity: 1 },
+          backgroundColor: "red",
+      },
+      defaultProperties
+    )
+
+    const text = new Text('My Text');
+
+    console.log('container', container);
+    this.root.add(container);
+
+
+
+    const container2 = new Container(
+      {
+          flexGrow: 1,
+          backgroundOpacity: 0.5,
+          hover: { backgroundOpacity: 1 },
+          backgroundColor: "blue"
+      },
+      defaultProperties
+    );
+    this.root.add(container2);
   }
 
   async drawSceneObjects(offsetX, offsetY) {
@@ -160,6 +219,7 @@ export default class SceneHelper {
     await this.character.initModel();
 
     this.scene.add(this.character.model);
+    this.drawUI();
 
     this.initLight(offsetX);
 

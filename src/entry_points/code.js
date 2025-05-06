@@ -7,19 +7,10 @@
   shows photo albums relevant to a specific event.
 */
 
-import Vue from 'vue';
-
-import App from '../apps/GravitySimulation/app.vue';
+import App from '../app';
 
 function runApp() {
-  window.addEventListener('DOMContentLoaded', () => {
-    new Vue({ // eslint-disable-line no-new
-      el: '#gravity-simulation',
-
-      render(createElement) {
-        return createElement(App);
-      },
-    });
-  });
+  console.log(App);
+  return App;
 }
 export default runApp;

@@ -161,7 +161,7 @@ Gravity Simulation (App)
 import { Vector3, Raycaster } from 'three';
 import mitchWorld from './helpers/index';
 import handleSlider from './helpers/handleSlider';
-import {Vector} from 'p5';
+import PhysicsBody from './helpers/physicsBody';
 
 export default {
   name: 'GravitySimulation',
@@ -192,10 +192,6 @@ export default {
     this.raycaster = new Raycaster();
   },
 
-  destroyed() {
-    // this.simulation.threeJS.remove();
-  },
-
   methods: {
     handleInfoBoxClicked(parentEvent) {
       this.isInfoBoxClicked = true;
@@ -207,7 +203,7 @@ export default {
       return Math.hypot(args[2] - args[0], args[3] - args[1]);
     },
 
-    getMousePosition(event, camera) {
+    getMousePosition(event) {
       const mouse = new Vector3();
       event.preventDefault();
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -218,61 +214,37 @@ export default {
     manageRaycasterIntersections(mouse, scene, camera) {
       // camera.updateMatrixWorld();
       this.raycaster.setFromCamera(mouse, camera);
-      const intersects = this.raycaster.intersectObjects(scene.children);
-      console.log('scene.children', scene.children);
-      console.log('mouse', mouse);
-      console.log('intersects', intersects);
-
-      if (intersects.length > 0) {
-        console.log('interseting');
-      } else {
-        console.log('not interseting');
-      }
+      return this.raycaster.intersectObjects(scene.children);
     },
 
     onCanvasClick(parentEvent) {
-      console.log(this.simulation);
+      if (this.isInfoBoxOpen && !this.isInfoBoxClicked) {
+        return this.closePlanetInfoBox();
+      }
+
       this.isInfoBoxClicked = false;
       this.updatePlanetWithInfoBoxData();
-      console.log('parentEvent', parentEvent);
 
-      const d = this.simulation.getDenormalizer();
-      const zoom = this.simulation.getZoom();
       const { scene } = this.simulation;
-      console.log('d.windowScale.x', d.windowScale.x);
 
       const { camera } = this.simulation;
-      const mousePosition = this.getMousePosition(parentEvent, camera);
-      this.manageRaycasterIntersections(mousePosition, scene, camera);
-      console.log('mousePosition', mousePosition);
-      console.log('zoom', zoom);
+      const mousePosition = this.getMousePosition(parentEvent);
+      const raycastIntersections = this.manageRaycasterIntersections(mousePosition, scene, camera);
+      const { physicsBodies } = this.simulation.gravitySimulation;
 
-      const [clickedBody] = this.simulation.getPhysicsBodies().filter((body) => {
-        const distance = this.getDistance(
-          d.dnx(body.position.x),
-          d.dny(body.position.y),
-          mousePosition.x,
-          mousePosition.y,
-        );
+      const [clickedObject] = raycastIntersections
+        .filter((sceneObject) => sceneObject.object.name.includes('Planet'));
 
-        if (body.name === 'Sun') {
-          console.log('body', body);
-          console.log('body.offsetX', body.offset.x);
-          console.log(body.position.x);
-          console.log('d.dnx(body.position.x)', d.dnx(body.position.x));
-          console.log('d.dnx(body.position.x)', d.dnx(body.position.x) - body.offset.x);
-          console.log('d.dnx(body.position.x)', d.dnx(body.position.x) + body.offset.x);
-          console.log('distance', distance);
-        }
-        // threeJS.mouseX - ((d.windowScale.x / 2) * shiftValue.x),
-        // threeJS.mouseY - ((d.windowScale.y / 2) * shiftValue.y),
-        const clickMargins = 2;
-
-        if (distance < (body.getSize(d.windowScale.x, zoom) + clickMargins)) {
-          return true;
-        }
+      if (typeof clickedObject !== 'object') {
         return false;
-      }).sort((a, b) => a.mass - b.mass);
+      }
+
+      const OBJECT_NAME_PREFACE = PhysicsBody.getObjectNamePreface();
+
+      const clickedSceneObjectName = clickedObject.object.name.replace(OBJECT_NAME_PREFACE, '');
+
+      const clickedBody = physicsBodies
+        .find((body) => body.name === clickedSceneObjectName);
 
       this.massHandler = {};
 
@@ -280,9 +252,6 @@ export default {
         return this.openPlanetInfoBox(clickedBody, parentEvent);
       }
 
-      if (this.isInfoBoxOpen && !this.isInfoBoxClicked) {
-        return this.closePlanetInfoBox();
-      }
       return null;
     },
 
@@ -533,13 +502,19 @@ export default {
       const infoEl = this.$refs.infoBox;
       this.currentlyOpenBody = clickedBody;
       this.clickedTimeScale = this.timeScale;
+      console.log(parentEvent);
+      console.log(clickedBody);
 
       this.handlePlanetInfoInputClicks(parentEvent);
       this.updatePlanetWithInfoBoxData();
-      const shiftValue = this.simulation.getShiftValue();
+
       const els = Array.from(infoEl.getElementsByTagName('div'));
-      // const initialBoxY = threeJS.mouseY - ((shiftValue.y - 1) * window.innerHeight);
-      // const initialBoxX = threeJS.mouseX;
+
+      const initialBoxY = parentEvent.clientY;
+      console.log('initialBoxY', initialBoxY);
+
+      const initialBoxX = parentEvent.clientX;
+      console.log('initialBoxX', initialBoxX);
 
       infoEl.style.background = `rgb(${this.currentlyOpenBody.color[0]}, ${this.currentlyOpenBody.color[1]}, ${this.currentlyOpenBody.color[2]})`;
 
@@ -636,6 +611,7 @@ export default {
       this.massHandler = handleSlider(updateMass, massSliderEl, true);
       this.timeScale = 0;
       this.isInfoBoxClicked = false;
+
       return infoEl;
     },
   },

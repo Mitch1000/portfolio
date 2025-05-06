@@ -3,6 +3,8 @@ import { getToonMaterial, solidify } from './toonLighting';
 import Vector from './vector';
 
 const LINE_WIDTH = 2;
+const OBJECT_NAME_PREFACE = 'Planet - ';
+
 function rgbToHex(r, g, b) {
   return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`; // eslint-disable-line
 }
@@ -38,6 +40,10 @@ class PhysicsBody {
     this.outline = null;
     this.forceLineMesh = null;
     this.lineWidth = 2;
+  }
+
+  static getObjectNamePreface() {
+    return OBJECT_NAME_PREFACE;
   }
 
   updateBoxHeadAndTail(headVector, tailVector, pos) {
@@ -135,7 +141,7 @@ class PhysicsBody {
 
     this.scene.add(sphere);
 
-    this.scene.children[this.scene.children.length - 1].name = `Planet ${this.name}`;
+    this.scene.children[this.scene.children.length - 1].name = `${PhysicsBody.getObjectNamePreface()}${this.name}`;
 
     sphere.matrixAutoUpdate = false;
     this.setPosition(sphere, this.position, denormalizer);

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import SceneHelper from './sceneHelper';
+import { reversePainterSortStable } from '@pmndrs/uikit'
 
 // N⋅m^2⋅kg^2
 // Newtons, meter, kilogram - These are the units we are using.
@@ -15,8 +16,11 @@ const offsetY = window.innerHeight * -0.15;
 
 async function setup() {
   sceneHelper = new SceneHelper(drawDistance);
-  const scene = sceneHelper.initScene();
+  sceneHelper.initScene();
+  const { uiScene, scene } = sceneHelper;
+  uiScene.background = null;
   scene.background = null;
+
 
   await sceneHelper.drawSceneObjects(offsetX, offsetY);
   return sceneHelper.rendererCompose();
@@ -28,7 +32,7 @@ function animate() {
 
   const deltaTime = clock.getDelta();
 
-  sceneHelper.setCanvasPositionOnInitialAnimate();
+  sceneHelper.setCanvasPositionOnInitialAnimate(onMouseClick);
 
   character.animate(deltaTime);
 
@@ -36,8 +40,9 @@ function animate() {
 
   gravitySimulation.animate();
 
+  sceneHelper.renderer.setTransparentSort(reversePainterSortStable);
   sceneHelper.controls.update(deltaTime);
-  sceneHelper.mainRender.clear = true;
+  sceneHelper.root.update(deltaTime);
   sceneHelper.composer.render(deltaTime);
 }
 
@@ -50,10 +55,6 @@ function main(onMouseClickCallback) {
 
   return Object.assign(
     sceneHelper,
-    {
-      getShiftValue: () => 1,
-      getZoom: () => 1,
-    },
   );
 }
 
