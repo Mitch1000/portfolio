@@ -1,34 +1,65 @@
-import { useEffect, useState } from 'react';
-import { Raycaster } from 'three';
+import { useState, useEffect } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { Fullscreen } from '@react-three/uikit';
 import React from 'react';
-import uiHelpers from '../helpers/uiHelpers';
+import Box from '../components/Box.jsx';
 import gravitySim from '../helpers/index';
+import { onCanvasClick, setMousePosition } from '../helpers/uiHelpers';
+import Styles from '../stylesheets/gravity_simulation.css';
+import InfoBox from './InfoBox.jsx';
+import YearCount from './YearCount.jsx';
+
 
 export default function GravitySimulation() {
   const [isScaled, setIsScaled] = useState(0);
-  const { onCanvasClick } = uiHelpers;
-  let isInfoBoxOpen = false;
-  let isInfoBoxClicked = false;
+  const [simulation, setSimulation] = useState({});
+  const [isInfoBoxOpen, setIsInfoBoxOpen] = useState(false);
+  const [clickedPlanet, setClickedPlanet] = useState(null);
+  const [parentEvent, setParentEvent] = useState(null);
+  const [yearCount, setYearCount] = useState(2024);
 
-  useEffect(() => { 
-    const handleClick = (event) => {
+  const yearCountUpdater = (value) => {
+    setYearCount(value);
+  };
 
-      // uiHelpers.onCanvasClick(event, isInfoBoxOpen, isInfoBoxClicked) 
-    };
+  const handleMouseMove = (event) => {
+    setMousePosition(event);
+  }
 
-    const simulation = gravitySim(handleClick);
-    // const { scene, renderer, camera } = simulation;
+  useEffect(() => {
+    const sim = gravitySim(yearCountUpdater);
+    setSimulation(sim);
+  }, [setSimulation])
 
-    console.log('use effect', simulation);
 
-
-    const raycaster = new Raycaster();
-  }, []);
 
   function handleCheck(e) {
-    console.log('handleCheck', e, isScaled);
     setIsScaled(!isScaled);
   }
+
+
+  const isInfoBoxClicked = false;
+
+  const onSimulationClick = (event) => {
+    console.log('onSimulationClick');
+    
+    if (isInfoBoxOpen && !isInfoBoxClicked) {
+      return setIsInfoBoxOpen(false);
+    }
+
+    const planet = onCanvasClick({
+      parentEvent: event, 
+      simulation, 
+    });
+
+
+    setClickedPlanet(planet);
+
+    setParentEvent(event);
+    const isPlanetClick = planet !== null && typeof planet === 'object';
+
+    setIsInfoBoxOpen(isPlanetClick);
+  };
 
   return (
     <div
@@ -53,12 +84,6 @@ export default function GravitySimulation() {
             <div className="slider" />
           </div>
         </div>
-      </div>
-      <div
-        id="year-count"
-        className="year-count"
-      >
-        Year: <span className="value"> 2024 </span>
       </div>
       <div
         id="scale-checkbox"
@@ -88,8 +113,25 @@ export default function GravitySimulation() {
           className="scenario-select"
         />
       </div>
-      <canvas id="root"></canvas>
+      <canvas id="root" onClick={onSimulationClick} onMouseMove={handleMouseMove}></canvas>
+         
+      <div id="ui-canvas-containers" className="ui-canvas-container" >
+        <Canvas id="ui-root" className="ui-scene" style={{ pointerEvents: 'none' }} gl={{ localClippingEnabled: true, clearDepth: true }}>
+          <Fullscreen flexDirection="row" padding={0} gap={2} >
+            <Box simulation={simulation}></Box>
+
+            <YearCount count={yearCount}></YearCount>
+            {isInfoBoxOpen &&
+              <InfoBox
+                clickedPlanet={clickedPlanet}
+                event={parentEvent}
+              >
+              </InfoBox>
+            }
+          </Fullscreen>
+
+        </Canvas>
+      </div>
     </div>
   )
 }
-

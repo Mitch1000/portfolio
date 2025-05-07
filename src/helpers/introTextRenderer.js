@@ -4,7 +4,7 @@ export default class IntroTextRenderer {
   constructor(scene) {
     this.header = new IntroText({
       scene,
-      ySpeed: 0.05,
+      ySpeed: 0.04,
       glitch: true,
       kerning: 12.5,
       offsetTime: 200,

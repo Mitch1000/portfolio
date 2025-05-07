@@ -1,7 +1,6 @@
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
-import { Fullscreen, Container, Root, Text } from '@pmndrs/uikit'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { Fullscreen, Container, Content, Root, Text } from '@pmndrs/uikit'
+import { ShaderPass }from 'three/examples/jsm/postprocessing/ShaderPass';
 import * as THREE from 'three';
 import CameraControls from 'camera-controls';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
@@ -13,7 +12,8 @@ import { CrtShader } from './tvShader';
 import Character from './character';
 import IntroTextRenderer from './introTextRenderer';
 import GravitySimulation from './gravitySimulation';
-import ui from './uiHelpers';
+import { handleTimeSlider, handleScenarioSelect } from './uiHelpers';
+import UIComponent from '../components/SimulationUi.jsx';
 
 CameraControls.install({ THREE });
 
@@ -25,15 +25,14 @@ export default class SceneHelper {
     this.initControls();
   }
 
-  rendererCompose() {
+  rendererCompose(uiScene, uiCamera) {
     const clearPass = new ClearPass();
-
 
     this.planetsRender = new RenderPass(this.scene, this.camera);
     this.planetsRender.clear = false;
     this.planetsRender.clearDepth = true;
 
-    this.mainRender = new RenderPass(this.uiScene, this.uiCamera);
+    this.mainRender = new RenderPass(uiScene, uiCamera);
     this.mainRender.clear = false;
     this.mainRender.clearDepth = true;
 
@@ -115,9 +114,6 @@ export default class SceneHelper {
       drawDistance,
     );
 
-    this.uiCamera = new THREE.PerspectiveCamera(70, 1, 0.01, 2000);
-    this.uiCamera.position.z = 1000;
-
     const isMobile = window.innerWidth < 1200;
 
     this.camera.position.x = -0.02;
@@ -133,13 +129,11 @@ export default class SceneHelper {
 
   initScene() {
     this.scene = new THREE.Scene();
-    this.uiScene = new THREE.Scene();
   }
 
-  setCanvasPositionOnInitialAnimate(onMouseClick) {
+  setCanvasPositionOnInitialAnimate() {
     const canvas = this.getCanvas();
     if (canvas.style.position === 'absolute') { return; }
-    canvas.addEventListener('click', onMouseClick);
 
     canvas.style.position = 'absolute';
     canvas.style.top = 0;
@@ -149,52 +143,7 @@ export default class SceneHelper {
     canvas.style.overflow = 'hidden';
   }
 
-  drawUI() {
-    this.root = new Root(this.uiCamera, this.uiScene, undefined, {
-      flexDirection: "row",
-      padding: 10,
-      gap: 10,
-      sizeX: 500,
-      sizeY: 100,
-    })
-
-    console.log(this.root);
-    this.uiScene.add(this.root);
-
-    const defaultProperties = {
-      backgroundOpacity: 0.5,
-    }
-
-    const container = new Container(
-      {
-          flexGrow: 1,
-          borderColor: "red",
-          hover: { backgroundOpacity: 1 },
-          backgroundColor: "red",
-      },
-      defaultProperties
-    )
-
-    const text = new Text('My Text');
-
-    console.log('container', container);
-    this.root.add(container);
-
-
-
-    const container2 = new Container(
-      {
-          flexGrow: 1,
-          backgroundOpacity: 0.5,
-          hover: { backgroundOpacity: 1 },
-          backgroundColor: "blue"
-      },
-      defaultProperties
-    );
-    this.root.add(container2);
-  }
-
-  async drawSceneObjects(offsetX, offsetY) {
+  async draw(offsetX, offsetY) {
     const initialScenario = 'Solar System';
 
     this.gravitySimulation = new GravitySimulation({
@@ -219,8 +168,6 @@ export default class SceneHelper {
     await this.character.initModel();
 
     this.scene.add(this.character.model);
-    this.drawUI();
-
     this.initLight(offsetX);
 
     const timeSliderCallback = (sliderValue) => {
@@ -228,14 +175,14 @@ export default class SceneHelper {
       this.gravitySimulation.updateTimeConstant(sliderValue);
     };
 
-    const timeSlider = ui.handleTimeSlider(timeSliderCallback);
+    const timeSlider = handleTimeSlider(timeSliderCallback);
 
     const scenarioSelectCallback = (event) => {
       timeSlider.reset();
       this.gravitySimulation.updateCurrentScenario(event);
     };
 
-    ui.handleScenarioSelect(
+    handleScenarioSelect(
       initialScenario,
       GravitySimulation.getScenariosList(),
       scenarioSelectCallback,

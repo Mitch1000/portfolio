@@ -1,5 +1,9 @@
+import { Vector3 } from 'three';
 import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
+
+let mouseData = { clientX: 0, clientY: 0, buttons: 0 };
+
 function updatePlanetWithInfoBoxData() {
   const massInfoEl = this.$refs.mass;
   const scaleInfoEl = this.$refs.scale;
@@ -84,86 +88,101 @@ function updatePlanetWithInfoBoxData() {
   }
 }
 
-export default {
-  handleTimeSlider(timeSliderCallback) {
-    const timeSliderEl = document.getElementById('time-slider');
-    return handleSlider(timeSliderCallback, timeSliderEl);
-  },
+export function handleTimeSlider(timeSliderCallback) {
+  const timeSliderEl = document.getElementById('time-slider');
+  return handleSlider(timeSliderCallback, timeSliderEl);
+}
 
-  handleScenarioSelect(initialScenario, scenarioKeys, scenarioSelectCallback) {
-    const scenarioSelectEl = document.getElementById('scenario-select');
-    scenarioSelectEl.value = initialScenario;
-    scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
-    scenarioSelectEl.addEventListener('change', scenarioSelectCallback);
+export function onCanvasClick({ parentEvent, simulation }) {
+    // updatePlanetWithInfoBoxData();
+    console.log('onCanvasClick');
 
-    scenarioKeys.forEach((scenarioKey) => {
-      const opt = document.createElement('option');
-      opt.value = scenarioKey;
-      opt.innerHTML = scenarioKey;
-      scenarioSelectEl.appendChild(opt);
-    });
-  },
+    const { scene, camera, raycaster } = simulation;
 
-  handleInfoBoxClicked(parentEvent) {
-    isInfoBoxClicked = true;
-    handlePlanetInfoInputClicks(parentEvent);
-    updatePlanetWithInfoBoxData();
-  },
-
-  getDistance(...args) {
-    return Math.hypot(args[2] - args[0], args[3] - args[1]);
-  },
-
-  getMousePosition(event) {
-    const mouse = new Vector3();
-    event.preventDefault();
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    return mouse;
-  },
-
-  manageRaycasterIntersections(mouse, scene, camera) {
-    // camera.updateMatrixWorld();
-    raycaster.setFromCamera(mouse, camera);
-    return raycaster.intersectObjects(scene.children);
-  },
-
-  onCanvasClick(parentEvent, isInfoBoxOpen, isInfoBoxClicked) {
-    if (isInfoBoxOpen && !isInfoBoxClicked) {
-      return closePlanetInfoBox();
-    }
-
-    isInfoBoxClicked = false;
-    updatePlanetWithInfoBoxData();
-
-    const { scene } = simulation;
-
-    const { camera } = simulation;
     const mousePosition = getMousePosition(parentEvent);
-    const raycastIntersections = manageRaycasterIntersections(mousePosition, scene, camera);
+    const raycastIntersections = manageRaycasterIntersections(mousePosition, scene, camera, raycaster);
     const { physicsBodies } = simulation.gravitySimulation;
 
     const [clickedObject] = raycastIntersections
       .filter((sceneObject) => sceneObject.object.name.includes('Planet'));
 
+
     if (typeof clickedObject !== 'object') {
-      return false;
+      return null;
     }
 
     const OBJECT_NAME_PREFACE = PhysicsBody.getObjectNamePreface();
 
     const clickedSceneObjectName = clickedObject.object.name.replace(OBJECT_NAME_PREFACE, '');
 
+
     const clickedBody = physicsBodies
       .find((body) => body.name === clickedSceneObjectName);
 
-    massHandler = {};
-
-    if (typeof clickedBody === 'object' && !isInfoBoxOpen) {
-      return openPlanetInfoBox(clickedBody, parentEvent);
+    if (typeof clickedBody === 'object') {
+      return clickedBody;
     }
 
     return null;
-  },
+}
 
+export function handleScenarioSelect(initialScenario, scenarioKeys, scenarioSelectCallback) {
+  const scenarioSelectEl = document.getElementById('scenario-select');
+  scenarioSelectEl.value = initialScenario;
+  scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
+  scenarioSelectEl.addEventListener('change', scenarioSelectCallback);
+
+  scenarioKeys.forEach((scenarioKey) => {
+    const opt = document.createElement('option');
+    opt.value = scenarioKey;
+    opt.innerHTML = scenarioKey;
+    scenarioSelectEl.appendChild(opt);
+  });
 };
+
+export function  handleInfoBoxClicked(parentEvent) {
+  isInfoBoxClicked = true;
+  handlePlanetInfoInputClicks(parentEvent);
+  updatePlanetWithInfoBoxData();
+}
+
+export function getDistance(...args) {
+  return Math.hypot(args[2] - args[0], args[3] - args[1]);
+}
+
+export function getMousePosition(event) {
+  const mouse = new Vector3();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  return mouse;
+}
+
+export function setMousePosition(mouse) {
+  mouseData.clientX = mouse.clientX;
+  mouseData.clientY = mouse.clientY;
+  mouseData.buttons = mouse.buttons;
+}
+
+export function handleCursor({ simulation, raycaster }) {
+  if (mouseData.buttons !== 0) { 
+    return;
+  }
+
+  const { scene, camera } = simulation;
+  if (typeof scene !== 'object' || typeof camera !== 'object') {
+    return;
+  }
+
+  const mousePos = getMousePosition(mouseData);
+  const raycastIntersections = manageRaycasterIntersections(mousePos, scene, camera, raycaster);
+  if (raycastIntersections.length > 0) {
+    document.body.style.cursor = 'pointer';
+  } else {
+    document.body.style.cursor = 'default';
+  }
+}
+
+export function manageRaycasterIntersections(mouse, scene, camera, raycaster) {
+  raycaster.setFromCamera(mouse, camera);
+  return raycaster.intersectObjects(scene.children);
+}

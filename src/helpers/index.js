@@ -1,29 +1,25 @@
 import * as THREE from 'three';
+import { reversePainterSortStable } from '@pmndrs/uikit'
 
 import SceneHelper from './sceneHelper';
-import { reversePainterSortStable } from '@pmndrs/uikit'
+import { handleCursor } from './uiHelpers';
+
+const raycaster = new THREE.Raycaster();
 
 // N⋅m^2⋅kg^2
 // Newtons, meter, kilogram - These are the units we are using.
 // For time we are using seconds.
 let sceneHelper = {};
 const drawDistance = 50000;
+let yearCountUpdater = () => {};
 
-let onMouseClick = null;
 const clock = new THREE.Clock();
-const offsetX = window.innerWidth * -0.12;
-const offsetY = window.innerHeight * -0.15;
 
 async function setup() {
   sceneHelper = new SceneHelper(drawDistance);
   sceneHelper.initScene();
   const { uiScene, scene } = sceneHelper;
-  uiScene.background = null;
   scene.background = null;
-
-
-  await sceneHelper.drawSceneObjects(offsetX, offsetY);
-  return sceneHelper.rendererCompose();
 }
 
 function animate() {
@@ -32,29 +28,29 @@ function animate() {
 
   const deltaTime = clock.getDelta();
 
-  sceneHelper.setCanvasPositionOnInitialAnimate(onMouseClick);
+  sceneHelper.setCanvasPositionOnInitialAnimate();
 
   character.animate(deltaTime);
 
   introText.animate();
 
-  gravitySimulation.animate();
+  gravitySimulation.animate(yearCountUpdater);
+
+
+  handleCursor({ simulation: sceneHelper, raycaster })
 
   sceneHelper.renderer.setTransparentSort(reversePainterSortStable);
   sceneHelper.controls.update(deltaTime);
-  sceneHelper.root.update(deltaTime);
   sceneHelper.composer.render(deltaTime);
 }
 
-function main(onMouseClickCallback) {
-  onMouseClick = onMouseClickCallback;
-
-  setup().then(() => {
-    animate();
-  });
+function main(revolutionsCountUpdater) {
+  yearCountUpdater = revolutionsCountUpdater;
+  setup();
 
   return Object.assign(
     sceneHelper,
+    { startAnimation: animate, raycaster },
   );
 }
 

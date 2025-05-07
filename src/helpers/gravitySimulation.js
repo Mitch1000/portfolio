@@ -105,7 +105,7 @@ class GravitySimulation {
     });
   }
 
-  handleYearCount() {
+  handleYearCount(yearCountUpdater) {
     const earth = this.physicsBodies.find((body) => body.name === 'Earth');
     const sun = this.physicsBodies.find((body) => body.name === 'Sun');
     const earthPosition = ((earth || {}).position || {});
@@ -114,9 +114,7 @@ class GravitySimulation {
     if (isInXWindow && !this.isYearCounted) {
       this.yearCount += 1;
       this.isYearCounted = true;
-      const yearEl = document.getElementById('year-count')
-        .getElementsByTagName('span')[0];
-      yearEl.innerHTML = this.yearCount;
+      yearCountUpdater(this.yearCount)
     }
     if (earthPosition.x < sunPosition.x) {
       this.isYearCounted = false;
@@ -132,7 +130,11 @@ class GravitySimulation {
     this.intitialTimeScale = this.timeScale;
   }
 
-  animate() {
+  getYearCount() {
+    return this.yearCount;
+  }
+
+  animate(yearCountUpdater) {
     if (this.physicsBodies.length <= 0) { return; }
 
     GravityCalculator.calculateBodyGravity({
@@ -141,7 +143,7 @@ class GravitySimulation {
       gravitationConstant: this.gravitationConstant,
     });
 
-    this.handleYearCount();
+    this.handleYearCount(yearCountUpdater);
 
     const scaleEl = document.getElementById('scale-checkbox').getElementsByTagName('input')[0];
     this.isScaled = scaleEl.checked;
