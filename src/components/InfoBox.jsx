@@ -93,8 +93,8 @@ class InfoBox extends React.Component {
          castShadow={true}
        >
          <InfoField label="Name" labelWeight="medium" fontWeight="light" value={this.state.currentPlanet.name}/>
-         <InfoField label="Mass" value={this.state.currentPlanet.mass}/>
-         <InfoField label="Density" value={this.state.currentPlanet.density}/>
+         <InfoField label="Mass (kg)" value={this.state.currentPlanet.mass.toPrecision(7)}/>
+         <InfoField label="Density (kg/m3)" value={this.state.currentPlanet.density.toPrecision(5)}/>
          <InfoField label="Visual Scale" value={this.state.currentPlanet.scale}/>
 
          <CoordinateBox
