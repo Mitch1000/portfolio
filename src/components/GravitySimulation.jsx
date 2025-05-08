@@ -90,7 +90,7 @@ export default function GravitySimulation() {
               positionLeft={0} 
               minWidth="100%"
               minHeight="100%"
-              backgroundColor="white"
+              backgroundColor="#0096FF"
               backgroundOpacity={0.01}
             >
               <YearCount count={yearCount}></YearCount>
