@@ -1,26 +1,25 @@
-const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
-const { VueLoaderPlugin } = require('vue-loader');
 const CopyPlugin = require('copy-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
-  mode: 'production',
-  resolve: {
-    alias: {
-      vue: 'vue/dist/vue.js',
-    },
-  },
+  mode: 'development',
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: 'babel-loader',
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options:{
+            presets: ["@babel/preset-env", "@babel/preset-react"],
+          }
+        },
       },
       {
-        // vue-loader config to load `.vue` files or single file components.
-        test: /\.vue$/,
-        loader: 'vue-loader',
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
       },
       {
         test: /\.s[ac]ss$/i,
@@ -52,8 +51,6 @@ module.exports = {
     ],
   },
   plugins: [
-    // make sure to include the plugin for the magic
-    new VueLoaderPlugin(),
     new CopyPlugin({
       patterns: [
         {
