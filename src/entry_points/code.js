@@ -10,7 +10,6 @@
 import App from '../app';
 
 function runApp() {
-  console.log(App);
   return App;
 }
 export default runApp;

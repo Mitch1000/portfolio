@@ -1,5 +1,4 @@
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { Fullscreen, Container, Content, Root, Text } from '@pmndrs/uikit'
 import { ShaderPass }from 'three/examples/jsm/postprocessing/ShaderPass';
 import * as THREE from 'three';
 import CameraControls from 'camera-controls';
@@ -13,10 +12,10 @@ import Character from './character';
 import IntroTextRenderer from './introTextRenderer';
 import GravitySimulation from './gravitySimulation';
 import { handleTimeSlider, handleScenarioSelect } from './uiHelpers';
-import UIComponent from '../components/SimulationUi.jsx';
+import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js';
 
 CameraControls.install({ THREE });
-
+// TODO: Stop relying so much on helper pattern
 export default class SceneHelper {
   constructor(drawDistance) {
     this.initScene();
@@ -27,6 +26,8 @@ export default class SceneHelper {
 
   rendererCompose(uiScene, uiCamera) {
     const clearPass = new ClearPass();
+    this.uiScene = uiScene;
+    this.uiCamera = uiCamera;
 
     this.planetsRender = new RenderPass(this.scene, this.camera);
     this.planetsRender.clear = false;

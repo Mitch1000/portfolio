@@ -145,8 +145,12 @@ class GravitySimulation {
 
     this.handleYearCount(yearCountUpdater);
 
-    const scaleEl = document.getElementById('scale-checkbox').getElementsByTagName('input')[0];
-    this.isScaled = scaleEl.checked;
+    const scaleEl = document.getElementById('scale-checkbox')
+    if (scaleEl instanceof HTMLElement ) {
+      const scaleInputEl = scaleEl.getElementsByTagName('input')[0];
+      this.isScaled = scaleInputEl.checked;
+    }
+
 
     this.physicsBodies.forEach((body) => body.updatePosition(this.denormalizer, this.isScaled));
     this.physicsBodies.forEach((body) => body.updateForceLines(this.denormalizer));
@@ -162,6 +166,14 @@ class GravitySimulation {
 
   getPhysicsBodies() {
     return this.physicsBodies;
+  }
+
+  getTimeScale() {
+    return this.timeScale;
+  }
+
+  setTimeScale(value) {
+    this.timeScale = value;
   }
 };
 

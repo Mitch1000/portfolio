@@ -1,40 +1,15 @@
 import React from 'react';
-import { useState, useEffect, createRef } from 'react';
-import { Container } from '@react-three/uikit';
+import { createRef } from 'react';
+import { Container  } from '@react-three/uikit';
 import { Color } from 'three';
-
-function repositionBox(x, y) {
-  const initialBoxY = y;
-  const initialBoxX = x;
-
-  setTimeout(() => {
-    const box = infoEl.getBoundingClientRect();
-  
-    if (box.right > window.innerWidth) {
-      infoEl.parentElement.style.left = `${initialBoxX - box.width}px`;
-    }
-  
-    if (box.left <= 0) {
-      infoEl.parentElement.style.left = `${initialBoxX + box.width}px`;
-    }
-  
-    if (box.bottom > window.innerHeight) {
-      infoEl.parentElement.style.top = `${initialBoxY - box.height}px`;
-    }
-  
-    if (box.top <= 0) {
-      infoEl.parentElement.style.top = `${initialBoxY + box.height}px`;
-    }
-  }, 0);
-}
+import InfoField from './InfoField.jsx';
+import CoordinateBox  from './CoordinateBox.jsx';
 
 const getColor = (colorArray) => {
   return new Color(`rgb(${colorArray[0]}, ${colorArray[1]}, ${colorArray[2]})`);
 };
 
-
 class InfoBox extends React.Component {
-
   constructor(props) {
     super(props);
     this.infoBox = createRef();
@@ -42,42 +17,106 @@ class InfoBox extends React.Component {
     const { clickedPlanet, event } = props;
     this.state =  {
       color: getColor([255, 0, 0]),
-      positionX: 50,
-      positionY: 20,
+      positionX: 0,
+      positionY: 0,
+      currentPlanet: { name: '', density: '', position: { x: 0, y: 0 }, velocity: { x: 0, y: 0 }, acceleration: {x: 0, y: 0 } },
+      maxWidth: 320,
+      maxHeight: 400,
     }
+    if (typeof (clickedPlanet || {}).name !== 'string') { 
+      return;
+    }
+    const color = getColor(clickedPlanet.color);
+    
+    this.state.currentPlanet = clickedPlanet;
+    this.state.color = color;                                           
+    this.state.positionX = event.pageX - 20;
+    this.state.positionY = event.pageY + 10;
 
-    console.log('start');
-    if (typeof clickedPlanet === 'object' && clickedPlanet !== null) {
-      console.log(clickedPlanet);
-      const color = getColor(clickedPlanet.color);
-      this.state =  {
-        color,
-        positionX: event.pageX - 210,
-        positionY: event.pageY,
-      }
+    const x = this.state.positionX;
+    const y = this.state.positionY;
+    const width = this.state.maxWidth;
+    const height = this.state.maxHeight;
+    const right = x + width;
+    const bottom = y + height;
+
+    if (right > window.innerWidth) {
+      this.state.positionX = x - width;
+    }
+    
+    if (x <= 0) {
+      this.state.positionX = x + width;
+    }
+    
+    if (bottom > window.innerHeight) {
+      this.state.positionY = y - height;
+    }
+    
+    if (y <= 0) {
+      this.state.positionY = y + height;
     }
   }
 
   render() {
     return (
-      <> 
-         <Container
-           ref={this.infoBox}
-           flexGrow={1} 
-           maxWidth={240}
-           maxHeight={380}
-           position='absolute'
-           positionLeft={this.state.positionX}
-           positionTop={this.state.positionY}
-           backgroundOpacity={0.8} 
-           hover={{ backgroundOpacity: 1 }} 
-           backgroundColor={this.state.color}
+    <Container
+      name="info-box"
+      maxWidth={0}
+      position="absolute"
+      positionTop={0}
+      positionLeft={10}
+      alignItems="flex-start"
+      justifyContent="flex-start"
+      backgroundColor="blue"
+    >
+       <Container
+         ref={this.infoBox}
+         flexGrow={1} 
+         minWidth={this.state.maxWidth}
+         minHeight={this.state.maxWidth}
+         maxWidth={this.state.maxWidth}
+         maxHeight={this.state.maxHeight}
+         position='absolute'
+         positionLeft={this.state.positionX}
+         positionTop={this.state.positionY}
+         hover={{ backgroundOpacity: 1 }} 
+         backgroundColor={this.state.color}
+         backgroundOpacity={0.9}
+         flexDirection="column"
+         justifyContent="flex-start"
+         paddingLeft={24}
+         paddingRight={12}
+         paddingTop={13}
+         paddingBottom={16}
+         borderRadius={30}
+         castShadow={true}
+       >
+         <InfoField label="Name" labelWeight="medium" fontWeight="light" value={this.state.currentPlanet.name}/>
+         <InfoField label="Mass" value={this.state.currentPlanet.mass}/>
+         <InfoField label="Density" value={this.state.currentPlanet.density}/>
+         <InfoField label="Visual Scale" value={this.state.currentPlanet.scale}/>
 
-           justifyContent="flex-start"
-         />
-      </>
+         <CoordinateBox
+           x={this.state.currentPlanet.position.x}
+           y={this.state.currentPlanet.position.y}
+           label="Position: "
+         >
+         </CoordinateBox>
+         <CoordinateBox
+           x={this.state.currentPlanet.velocity.x}
+           y={this.state.currentPlanet.velocity.y}
+           label="Velocity: "
+         >
+         </CoordinateBox>
+         <CoordinateBox
+           x={this.state.currentPlanet.acceleration.x}
+           y={this.state.currentPlanet.acceleration.y}
+           label="Acceleration: "
+         >
+         </CoordinateBox>
+       </Container>
+     </Container>
     );
-
   }
 }
 export default InfoBox;

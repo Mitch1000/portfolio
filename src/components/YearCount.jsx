@@ -4,24 +4,25 @@ import { Container, Text, FontFamilyProvider } from '@react-three/uikit';
 export default function YearCount(props) {
   return (
     <Container
-      marginLeft={10}
-      marginBottom={10}
-      width={200}
+      name="year-count"
+      maxWidth={0}
       position="absolute"
-
+      positionTop={0}
+      positionLeft={10}
       alignItems="flex-end"
       justifyContent="flex-start"
     >
       <FontFamilyProvider
-        robot={{
-          medium: "assets/robot.json",
-          bold: "assets/robot.json",
+        roboto={{
+          medium: "assets/roboto.json",
         }}
       >
         <Text
-          position='absolute'
+          marginLeft="16"
+          minWidth="200"
+          marginBottom="14"
           color="#fffab8"
-          fontFamily="robot"
+          fontFamily="roboto"
           fontSize="30"
         >
           YEAR: {props.count}

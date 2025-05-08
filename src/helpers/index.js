@@ -18,11 +18,11 @@ const clock = new THREE.Clock();
 async function setup() {
   sceneHelper = new SceneHelper(drawDistance);
   sceneHelper.initScene();
-  const { uiScene, scene } = sceneHelper;
+  const { scene } = sceneHelper;
   scene.background = null;
 }
 
-function animate() {
+export function animate() {
   requestAnimationFrame(animate);
   const { character, introText, gravitySimulation } = sceneHelper;
 
@@ -44,7 +44,7 @@ function animate() {
   sceneHelper.composer.render(deltaTime);
 }
 
-function main(revolutionsCountUpdater) {
+export function main(revolutionsCountUpdater) {
   yearCountUpdater = revolutionsCountUpdater;
   setup();
 
@@ -53,5 +53,3 @@ function main(revolutionsCountUpdater) {
     { startAnimation: animate, raycaster },
   );
 }
-
-export default main;

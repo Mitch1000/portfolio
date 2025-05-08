@@ -8,6 +8,7 @@ class IntroText {
     scene,
     textString = 'Mitch World',
     kerning = 12,
+    info = 'Default',
     size = 500,
     scale = 0.125,
     ySpeed = 0.08,
@@ -37,6 +38,7 @@ class IntroText {
     this.backdrops = [];
     this.glitchColor = glitchColor;
     this.offsetTime = 250;
+    this.info = info;
   }
 
   async drawText(minCharacterSpace = 60) {
@@ -108,7 +110,7 @@ class IntroText {
             this.backdrops.push(backdrop);
           }
 
-          text.name = `Text - ${this.textString} (${character})`;
+          text.name = `Text ${this.info} - ${this.textString} (${character})`;
 
           this.scene.add(text);
 

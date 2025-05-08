@@ -502,8 +502,6 @@ export default {
       const infoEl = this.$refs.infoBox;
       this.currentlyOpenBody = clickedBody;
       this.clickedTimeScale = this.timeScale;
-      console.log(parentEvent);
-      console.log(clickedBody);
 
       this.handlePlanetInfoInputClicks(parentEvent);
       this.updatePlanetWithInfoBoxData();
@@ -511,10 +509,8 @@ export default {
       const els = Array.from(infoEl.getElementsByTagName('div'));
 
       const initialBoxY = parentEvent.clientY;
-      console.log('initialBoxY', initialBoxY);
 
       const initialBoxX = parentEvent.clientX;
-      console.log('initialBoxX', initialBoxX);
 
       infoEl.style.background = `rgb(${this.currentlyOpenBody.color[0]}, ${this.currentlyOpenBody.color[1]}, ${this.currentlyOpenBody.color[2]})`;
 

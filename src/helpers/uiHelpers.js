@@ -3,6 +3,7 @@ import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 
 let mouseData = { clientX: 0, clientY: 0, buttons: 0 };
+let link = null;
 
 function updatePlanetWithInfoBoxData() {
   const massInfoEl = this.$refs.mass;
@@ -88,34 +89,13 @@ function updatePlanetWithInfoBoxData() {
   }
 }
 
-export function handleTimeSlider(timeSliderCallback) {
-  const timeSliderEl = document.getElementById('time-slider');
-  return handleSlider(timeSliderCallback, timeSliderEl);
-}
-
-export function onCanvasClick({ parentEvent, simulation }) {
-    // updatePlanetWithInfoBoxData();
-    console.log('onCanvasClick');
-
-    const { scene, camera, raycaster } = simulation;
-
-    const mousePosition = getMousePosition(parentEvent);
-    const raycastIntersections = manageRaycasterIntersections(mousePosition, scene, camera, raycaster);
-    const { physicsBodies } = simulation.gravitySimulation;
-
-    const [clickedObject] = raycastIntersections
-      .filter((sceneObject) => sceneObject.object.name.includes('Planet'));
-
-
-    if (typeof clickedObject !== 'object') {
-      return null;
-    }
-
+function onPlanetClick({ simulation, clickedObject }) {
     const OBJECT_NAME_PREFACE = PhysicsBody.getObjectNamePreface();
 
     const clickedSceneObjectName = clickedObject.object.name.replace(OBJECT_NAME_PREFACE, '');
 
 
+    const { physicsBodies } = simulation.gravitySimulation;
     const clickedBody = physicsBodies
       .find((body) => body.name === clickedSceneObjectName);
 
@@ -124,10 +104,100 @@ export function onCanvasClick({ parentEvent, simulation }) {
     }
 
     return null;
+
+}
+
+function getMousePositionFromEvent(event) {
+  const mouse = new Vector3();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  return mouse;
+}
+
+let originalYSpeed = null;
+function onTextClick({ simulation, clickedObject }) {
+  if (typeof simulation.introText !== 'object') {
+    return null;
+  }
+
+  //TODO: Make this more extensible
+  if (typeof simulation.introText.header !== 'object') {
+    return null;
+  }
+  if (originalYSpeed === null) {
+    originalYSpeed = simulation.introText.header.ySpeed;
+  }
+
+  let textGroup = simulation.introText.header;
+
+  if (clickedObject.object.name.includes('Subheader') && typeof simulation.introText.subHeader === 'object') {
+    textGroup = simulation.introText.subHeader;
+  }
+
+
+  textGroup.ySpeed = 0.12;
+  setTimeout(() => {
+     textGroup.ySpeed = originalYSpeed;
+  }, (50 * 12) + 1000);
+
+  return null;
+}
+
+function onCharacterClick({ simulation, clickedObject }) {
+  if (typeof simulation.character !== 'object') {
+    return null;
+  }
+
+  const { cycleAnimation } = simulation.character;
+
+  if (typeof cycleAnimation !== 'function') {
+    return null;
+  }
+
+  simulation.character.cycleAnimation();
+  return null;
+}
+
+export function handleTimeSlider(timeSliderCallback) {
+  const timeSliderEl = document.getElementById('time-slider');
+  return handleSlider(timeSliderCallback, timeSliderEl);
+}
+
+export function onCanvasClick({ parentEvent, simulation }) {
+    const { scene, camera, raycaster } = simulation;
+
+    const mousePosition = getMousePositionFromEvent(parentEvent);
+    const raycastIntersections = manageRaycasterIntersections(mousePosition, scene, camera, raycaster);
+    const [clickedObject] = raycastIntersections;
+
+    if (typeof clickedObject !== 'object') {
+      return null;
+    }
+
+    const objectName = clickedObject.object.name;
+    if (objectName.includes('Text')) {
+      return onTextClick({ simulation, clickedObject });
+    }
+
+    if (objectName.includes('Planet')) {
+      return onPlanetClick({ simulation, clickedObject });
+    }
+
+    if (objectName.includes('Character')) {
+      return onCharacterClick({ simulation, clickedObject });
+    }
+
+    return null;
+    // updatePlanetWithInfoBoxData();
 }
 
 export function handleScenarioSelect(initialScenario, scenarioKeys, scenarioSelectCallback) {
   const scenarioSelectEl = document.getElementById('scenario-select');
+
+  if (typeof scenarioSelectEl !== 'object' || scenarioSelectEl === null) {
+    return;
+  }
+
   scenarioSelectEl.value = initialScenario;
   scenarioSelectEl.addEventListener('click', (event) => event.preventDefault());
   scenarioSelectEl.addEventListener('change', scenarioSelectCallback);
@@ -143,19 +213,13 @@ export function handleScenarioSelect(initialScenario, scenarioKeys, scenarioSele
 export function  handleInfoBoxClicked(parentEvent) {
   isInfoBoxClicked = true;
   handlePlanetInfoInputClicks(parentEvent);
-  updatePlanetWithInfoBoxData();
+  // updatePlanetWithInfoBoxData();
 }
 
 export function getDistance(...args) {
   return Math.hypot(args[2] - args[0], args[3] - args[1]);
 }
 
-export function getMousePosition(event) {
-  const mouse = new Vector3();
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-  return mouse;
-}
 
 export function setMousePosition(mouse) {
   mouseData.clientX = mouse.clientX;
@@ -163,23 +227,31 @@ export function setMousePosition(mouse) {
   mouseData.buttons = mouse.buttons;
 }
 
+export function setLink(value) {
+  link = value;
+}
+
+
+export function getMouseData() {
+  return mouseData;
+}
+
 export function handleCursor({ simulation, raycaster }) {
   if (mouseData.buttons !== 0) { 
     return;
   }
 
-  const { scene, camera } = simulation;
+  const { scene, camera, uiScene, uiCamera } = simulation;
   if (typeof scene !== 'object' || typeof camera !== 'object') {
     return;
   }
 
-  const mousePos = getMousePosition(mouseData);
+  const mousePos = getMousePositionFromEvent(mouseData);
   const raycastIntersections = manageRaycasterIntersections(mousePos, scene, camera, raycaster);
+
   if (raycastIntersections.length > 0) {
-    document.body.style.cursor = 'pointer';
-  } else {
-    document.body.style.cursor = 'default';
-  }
+    return document.body.style.cursor = 'pointer';
+  }  
 }
 
 export function manageRaycasterIntersections(mouse, scene, camera, raycaster) {

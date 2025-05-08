@@ -5,6 +5,9 @@ class SliderHandler {
   }
 
   setInitial() {
+    if (!(this.slider instanceof HTMLElement)) {
+      return;
+    }
     this.sliderExtension = 2;
 
     this.initialPosition = this.slider.getBoundingClientRect().top;
@@ -24,6 +27,10 @@ class SliderHandler {
 
 export default function handleSlider(updateCallBack, sliderEl, horizontal = false) {
   const sh = new SliderHandler(sliderEl);
+  
+  if (!(sh.slider instanceof HTMLElement)) {
+    return;
+  }
 
   const handleMove = (targetPos) => {
     const newPosition = sh.currentPosition + (targetPos - sh.sliderClickedPos);

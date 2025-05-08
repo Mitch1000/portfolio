@@ -79,6 +79,25 @@ class Character {
     this.setAnimation('Idle.001', clips);
   }
 
+  cycleAnimation() {
+    const animationsCycle = [ "Idle.001", "Walk", "Running" ];
+
+    const currentActionName = this.action.getClip().name;
+    const currentClipIndex = animationsCycle.findIndex(cycleName => cycleName === currentActionName);
+    if (currentClipIndex < 0) {
+      return;
+    }
+
+    const nextClipIndex = currentClipIndex + 1;
+
+    if (nextClipIndex > animationsCycle.length - 1) {
+      this.setAnimation(animationsCycle[0], this.clips);
+      return;
+    }
+
+    this.setAnimation(animationsCycle[nextClipIndex], this.clips);
+  }
+
   initModel() {
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
