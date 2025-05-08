@@ -20,8 +20,9 @@ class InfoBox extends React.Component {
       positionX: 0,
       positionY: 0,
       currentPlanet: { name: '', density: '', position: { x: 0, y: 0 }, velocity: { x: 0, y: 0 }, acceleration: {x: 0, y: 0 } },
-      maxWidth: 320,
-      maxHeight: 400,
+      maxWidth: 390,
+      maxHeight: 420,
+      minHeight: 360,
     }
     if (typeof (clickedPlanet || {}).name !== 'string') { 
       return;
@@ -73,7 +74,7 @@ class InfoBox extends React.Component {
          ref={this.infoBox}
          flexGrow={1} 
          minWidth={this.state.maxWidth}
-         minHeight={this.state.maxWidth}
+         minHeight={this.state.minHeight}
          maxWidth={this.state.maxWidth}
          maxHeight={this.state.maxHeight}
          position='absolute'
@@ -85,7 +86,7 @@ class InfoBox extends React.Component {
          flexDirection="column"
          justifyContent="flex-start"
          paddingLeft={24}
-         paddingRight={12}
+         paddingRight={8}
          paddingTop={13}
          paddingBottom={16}
          borderRadius={30}
