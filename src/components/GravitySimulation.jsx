@@ -71,6 +71,9 @@ export default function GravitySimulation() {
   useEffect(() => {
     const sim = main(yearCountUpdater);
     setSimulation(sim);
+    addEventListener('resize', (event) => {
+      sim.renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   }, [setSimulation])
 
   return (
