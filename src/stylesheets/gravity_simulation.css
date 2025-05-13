@@ -91,6 +91,7 @@ div.ui-canvas-container {
   font-size: 16px;
   margin-right: 4vw;
   margin-left: auto;
+  cursor: pointer;
 }
 
 @media (width <= 1200px) {
