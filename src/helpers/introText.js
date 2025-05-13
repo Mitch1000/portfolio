@@ -15,7 +15,7 @@ class IntroText {
     ySpeed = 0.08,
     amplitude = 12,
     initialPositionX = 224,
-    initialPositionY = 115,
+    initialPositionY = 125,
     color = 'crimson',
     glitch = false,
     glitchColor = { x: 0.5, y: 0.1670, z: 0.0429 },

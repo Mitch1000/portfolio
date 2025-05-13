@@ -21,7 +21,7 @@ export default class IntroTextRenderer {
       textString: 'Click a Planet to Explore!',
       color: '#DC143C',
       info: 'Subheader',
-      initialPositionY: 70,
+      initialPositionY: 80,
       initialPositionX: 190,
       size: 400,
       scale: 0.055,
