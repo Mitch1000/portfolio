@@ -20,6 +20,7 @@ class Character {
     this.offsetY = offset.y;
     this.offsetZ = offset.z;
     this.clips = [];
+    this.isFadingIn = true;
   }
 
   updateAnimation(sliderValue) {
@@ -102,6 +103,7 @@ class Character {
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
 
+
     dracoLoader.setDecoderPath('/');
     loader.setDRACOLoader(dracoLoader);
 
@@ -139,7 +141,17 @@ class Character {
     });
   }
 
+  fadeIn() {
+    this.setToRunAnimation(this.clips);
+    this.isFadingIn = false;
+    this.setToIdleAnimation(this.clips);
+  }
+
   animate(deltaTime) {
+    if (this.isFadingIn) {
+      this.fadeIn();
+    }
+
     if (this.mixer instanceof THREE.AnimationMixer) {
       this.mixer.update(deltaTime);
 
