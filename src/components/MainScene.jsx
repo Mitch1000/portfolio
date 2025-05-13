@@ -15,6 +15,13 @@ async function startSimulation(uiScene, uiCamera, simulation, renderer) {
   const canvas = document.getElementById('root');
   await simulation.draw(offsetX, offsetY); 
 
+
+  const gravitySimContainer = document.getElementsByClassName('gravity-simulation')[0];
+  const appContainer = document.getElementsByClassName('app')[0];
+  gravitySimContainer.style.opacity = 1;
+  app.style.opacity = 1;
+  console.log('gravitySimContainer', gravitySimContainer);
+
   canvas.style.opacity = 1;
 
   const rend = new WebGLRenderer({ canvas, antialias: true, alpha: true });

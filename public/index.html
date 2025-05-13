@@ -30,15 +30,14 @@
         max-height: 100vh;
         max-width: 100vw;
         height: 100vh;
+        opacity: 0;
         width: 100vw;
+        transition: opacity 0.2s ease-in;
         position: relative;
       }
     </style>
   </head>
   <body>
-    <div id="app" class="app">
-      <div id="gravity-simulation" />
-
       <div class="loader crt">
         <div class="scene">
           <div class="cube-wrapper">
@@ -56,6 +55,9 @@
           </div>
         </div>
       </div>
+    <div id="app" class="app">
+      <div id="gravity-simulation" />
+
     </div>
     <script src="main.js"></script>
   </body>

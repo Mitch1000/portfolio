@@ -380,6 +380,8 @@ div.ui-canvas-container {
   pointer-events: none;
 }
 .gravity-simulation {
+  transition: opacity 0.2s ease-in;
+  opacity: 0;
   overflow: hidden;
   position: absolute;
   width: 100vw;
