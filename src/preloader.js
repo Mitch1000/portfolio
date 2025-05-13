@@ -4,7 +4,7 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 
 const THREE = import('three');
 
-THREE.then(async (value) => {
+THREE.then((value) => {
   window.THREE = value;
 
   window.setup();
