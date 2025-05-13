@@ -4,6 +4,14 @@ class SliderHandler {
     this.setInitial();
   }
 
+  resetPositionData() {
+    this.sliderClickedPos = 0;
+    this.isSliderClicked = false;
+    this.currentPosition = 0;
+    this.newTop = 0;
+    this.slideValue = 0;
+  }
+
   setInitial() {
     if (!(this.slider instanceof HTMLElement)) {
       return;
@@ -12,15 +20,11 @@ class SliderHandler {
 
     this.initialPosition = this.slider.getBoundingClientRect().top;
 
-    this.sliderClickedPos = 0;
-    this.isSliderClicked = false;
-    this.currentPosition = 0;
-    this.newTop = 0;
-    this.slideValue = 0;
+    this.resetPositionData();
   }
 
   reset() {
-    this.setInitial();
+    this.resetPositionData();
     this.slider.style.transform = 'translateX(0px) translateY(0px)';
   }
 }
