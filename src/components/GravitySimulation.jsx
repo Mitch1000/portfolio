@@ -9,7 +9,6 @@ import InfoBox from './InfoBox.jsx';
 import Links from './Links.jsx';
 import ControlOverlay from './ControlOverlay.jsx';
 import YearCount from './YearCount.jsx';
-import Loader from './Loader.jsx';
 const MainScene = lazy(() => import('./MainScene.jsx'));
 
 let currentTimeScale = null; 
@@ -82,7 +81,7 @@ export default function GravitySimulation() {
     >
       <canvas id="root" onMouseMove={handleMouseMove} onClick={onSimulationClick}></canvas>
       <ControlOverlay> </ControlOverlay>
-      <Suspense fallback={<Loader />}>
+      <Suspense fallback={null}>
         <div
           id="ui-canvas-container"
           className="ui-canvas-container"

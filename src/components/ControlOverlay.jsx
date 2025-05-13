@@ -1,5 +1,4 @@
 import React from 'react';
-import Crt from '../stylesheets/crt.css';
 
 export default function ControlOverlay() {
   const handleCheck = () => {

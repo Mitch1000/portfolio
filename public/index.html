@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="./stylesheets/loader.css" />
+    <link rel="stylesheet" href="./stylesheets/crt.css" />
     <title>Mitch World</title>
     <style>
       body {
@@ -36,6 +38,24 @@
   <body>
     <div id="app" class="app">
       <div id="gravity-simulation" />
+
+      <div class="loader crt">
+        <div class="scene">
+          <div class="cube-wrapper">
+            <div class="cube">
+              <div class="cube-faces">
+                <div class="cube-face shadow"></div>
+                <div class="cube-face bottom"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face front"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="main.js"></script>
   </body>
