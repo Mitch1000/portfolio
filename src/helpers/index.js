@@ -30,7 +30,9 @@ export function animate() {
 
   sceneHelper.setCanvasPositionOnInitialAnimate();
 
-  character.animate(deltaTime);
+  if (character.model instanceof THREE.Object3D) {
+    character.animate(deltaTime);
+  }
 
   introText.animate();
 

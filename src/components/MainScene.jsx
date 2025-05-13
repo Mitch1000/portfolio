@@ -2,7 +2,6 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { WebGLRenderer } from 'three';
-import { animate } from '../helpers/index';
 
 
 let hasRendered = false;
@@ -13,9 +12,11 @@ async function startSimulation(uiScene, uiCamera, simulation, renderer) {
   const offsetX = window.innerWidth * -0.12;
   const offsetY = window.innerHeight * -0.15;
 
+  const canvas = document.getElementById('root');
   await simulation.draw(offsetX, offsetY); 
 
-  const canvas = document.getElementById('root');
+  canvas.style.opacity = 1;
+
   const rend = new WebGLRenderer({ canvas, antialias: true, alpha: true });
 
   rend.setSize(window.innerWidth, window.innerHeight);
@@ -29,8 +30,6 @@ async function startSimulation(uiScene, uiCamera, simulation, renderer) {
   simulation.rendererCompose(uiScene, uiCamera, rend);
   simulation.startAnimation();
 }
-
-
 
 export default function MainScene({ simulation }) {
   const { scene, camera, gl } = useThree();

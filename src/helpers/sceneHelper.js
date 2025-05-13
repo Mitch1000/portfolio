@@ -143,6 +143,11 @@ export default class SceneHelper {
     canvas.style.maxHeight = '100vh';
     canvas.style.overflow = 'hidden';
   }
+  async drawCharacter() {
+    await this.character.initModel();
+
+    this.scene.add(this.character.model);
+  }
 
   async draw(offsetX, offsetY) {
     const initialScenario = 'Solar System';
@@ -153,11 +158,6 @@ export default class SceneHelper {
       currentScenario: initialScenario,
     });
 
-    await this.gravitySimulation.drawPhysicsBodies();
-
-    this.introText = new IntroTextRenderer(this.scene);
-    await this.introText.draw();
-
     this.character = new Character({
       scene: this.scene,
       renderer: this.renderer,
@@ -165,10 +165,12 @@ export default class SceneHelper {
       controls: this.controls,
       offset: new THREE.Vector3(0, offsetY, 0),
     });
+    this.drawCharacter();
 
-    await this.character.initModel();
+    this.introText = new IntroTextRenderer(this.scene);
+    await this.introText.draw();
 
-    this.scene.add(this.character.model);
+
     this.initLight(offsetX);
 
     const timeSliderCallback = (sliderValue) => {
@@ -182,6 +184,8 @@ export default class SceneHelper {
       timeSlider.reset();
       this.gravitySimulation.updateCurrentScenario(event);
     };
+
+    await this.gravitySimulation.drawPhysicsBodies();
 
     handleScenarioSelect(
       initialScenario,

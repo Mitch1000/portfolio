@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Fullscreen, Container, useFrame } from '@react-three/uikit';
+import { Fullscreen, Container } from '@react-three/uikit';
 import React from 'react';
-import { main, animate } from '../helpers/index';
+import { main } from '../helpers/index';
 import { onCanvasClick, setMousePosition } from '../helpers/uiHelpers';
 import Styles from '../stylesheets/gravity_simulation.css';
 import InfoBox from './InfoBox.jsx';
@@ -10,7 +10,6 @@ import Links from './Links.jsx';
 import ControlOverlay from './ControlOverlay.jsx';
 import YearCount from './YearCount.jsx';
 import MainScene from './MainScene.jsx';
-
 
 let currentTimeScale = null; 
 let isBoxOpen = false; 
@@ -71,7 +70,7 @@ export default function GravitySimulation() {
   useEffect(() => {
     const sim = main(yearCountUpdater);
     setSimulation(sim);
-    addEventListener('resize', (event) => {
+    addEventListener('resize', () => {
       sim.renderer.setSize(window.innerWidth, window.innerHeight);
     });
   }, [setSimulation])
@@ -82,8 +81,16 @@ export default function GravitySimulation() {
     >
       <canvas id="root" onMouseMove={handleMouseMove} onClick={onSimulationClick}></canvas>
       <ControlOverlay> </ControlOverlay>
-      <div id="ui-canvas-container" className="ui-canvas-container">
-        <Canvas id="ui-root" className="ui-scene" style={{ pointerEvents: 'none' }} gl={{ localClippingEnabled: true, clearDepth: true }}>
+      <div
+        id="ui-canvas-container"
+        className="ui-canvas-container"
+      >
+        <Canvas
+          id="ui-root"
+          className="ui-scene"
+          style={{ pointerEvents: 'none' }}
+          gl={{ localClippingEnabled: true, clearDepth: true }}
+        >
           <Fullscreen flexDirection="row" padding={0} gap={2} >
             <MainScene simulation={simulation}></MainScene>
             <Container
@@ -108,9 +115,15 @@ export default function GravitySimulation() {
               <Links camera={simulation.camera} mainScene={simulation.scene}></Links>
             </Container>
           </Fullscreen>
-
         </Canvas>
       </div>
     </div>
   )
 }
+// Add a fixed delay so you can see the loading state
+function delayForDemo(promise) {
+  return new Promise(resolve => {
+    setTimeout(resolve, 40000);
+  }).then(() => promise);
+}
+
