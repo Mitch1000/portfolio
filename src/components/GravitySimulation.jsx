@@ -9,7 +9,8 @@ import InfoBox from './InfoBox.jsx';
 import Links from './Links.jsx';
 import ControlOverlay from './ControlOverlay.jsx';
 import YearCount from './YearCount.jsx';
-import MainScene from './MainScene.jsx';
+import Loader from './Loader.jsx';
+const MainScene = lazy(() => import('./MainScene.jsx'));
 
 let currentTimeScale = null; 
 let isBoxOpen = false; 
@@ -81,49 +82,44 @@ export default function GravitySimulation() {
     >
       <canvas id="root" onMouseMove={handleMouseMove} onClick={onSimulationClick}></canvas>
       <ControlOverlay> </ControlOverlay>
-      <div
-        id="ui-canvas-container"
-        className="ui-canvas-container"
-      >
-        <Canvas
-          id="ui-root"
-          className="ui-scene"
-          style={{ pointerEvents: 'none' }}
-          gl={{ localClippingEnabled: true, clearDepth: true }}
+      <Suspense fallback={<Loader />}>
+        <div
+          id="ui-canvas-container"
+          className="ui-canvas-container"
         >
-          <Fullscreen flexDirection="row" padding={0} gap={2} >
-            <MainScene simulation={simulation}></MainScene>
-            <Container
-              name="ui-container"
-              position="absolute"
-              positionTop={0} 
-              positionLeft={0} 
-              minWidth="100%"
-              minHeight="100%"
-              backgroundColor="#0096FF"
-              backgroundOpacity={0.01}
-            >
-              <YearCount count={yearCount}></YearCount>
+          <Canvas
+            id="ui-root"
+            className="ui-scene"
+            style={{ pointerEvents: 'none' }}
+            gl={{ localClippingEnabled: true, clearDepth: true }}
+          >
+            <Fullscreen flexDirection="row" padding={0} gap={2} >
+              <MainScene simulation={simulation}></MainScene>
+              <Container
+                name="ui-container"
+                position="absolute"
+                positionTop={0} 
+                positionLeft={0} 
+                minWidth="100%"
+                minHeight="100%"
+                backgroundColor="#0096FF"
+                backgroundOpacity={0.01}
+              >
+                <YearCount count={yearCount}></YearCount>
 
-              {isInfoBoxOpen &&
-                <InfoBox
-                  clickedPlanet={clickedPlanet}
-                  event={parentEvent}
-                >
-                </InfoBox>
-              }
-              <Links camera={simulation.camera} mainScene={simulation.scene}></Links>
-            </Container>
-          </Fullscreen>
-        </Canvas>
-      </div>
+                {isInfoBoxOpen &&
+                  <InfoBox
+                    clickedPlanet={clickedPlanet}
+                    event={parentEvent}
+                  >
+                  </InfoBox>
+                }
+                <Links camera={simulation.camera} mainScene={simulation.scene}></Links>
+              </Container>
+            </Fullscreen>
+          </Canvas>
+        </div>
+      </Suspense>
     </div>
   )
 }
-// Add a fixed delay so you can see the loading state
-function delayForDemo(promise) {
-  return new Promise(resolve => {
-    setTimeout(resolve, 40000);
-  }).then(() => promise);
-}
-

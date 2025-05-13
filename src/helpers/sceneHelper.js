@@ -145,7 +145,6 @@ export default class SceneHelper {
   }
   async drawCharacter() {
     await this.character.initModel();
-
     this.scene.add(this.character.model);
   }
 

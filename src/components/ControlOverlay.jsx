@@ -1,4 +1,5 @@
 import React from 'react';
+import Crt from '../stylesheets/crt.css';
 
 export default function ControlOverlay() {
   const handleCheck = () => {
@@ -10,8 +11,8 @@ export default function ControlOverlay() {
     <div className="sliders">
       <div className="sliders-holder">
         <div className="slider-container">
-          <div className="slider-info">
-            &#916;t
+          <div className="slider-info ">
+            <span className="info"> &#916;t</span>
           </div>
           <div
             id="time-slider"
