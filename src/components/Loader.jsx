@@ -4,7 +4,7 @@ import Crt from '../stylesheets/crt.css';
 
 export default function Loader() {
  return (
-   <div class="loader crt">
+   <div className="loader crt">
     <div className="scene">
       <div className="cube-wrapper">
         <div className="cube">
