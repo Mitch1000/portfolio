@@ -14,7 +14,7 @@ export default function YearCount(props) {
     >
       <FontFamilyProvider
         roboto={{
-          medium: "assets/roboto.json",
+          medium: `${window.assetsUrl}/roboto.json`,
         }}
       >
         <Text

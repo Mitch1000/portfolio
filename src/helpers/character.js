@@ -1,9 +1,6 @@
 import threeImporter from './threeImporter';
 const THREE = threeImporter();
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-
 class Character {
   constructor({
     renderer,
@@ -102,12 +99,6 @@ class Character {
   }
 
   initModel() {
-    const loader = new GLTFLoader();
-    const dracoLoader = new DRACOLoader();
-
-
-    dracoLoader.setDecoderPath('/');
-    loader.setDRACOLoader(dracoLoader);
     const handleCharacterModel = (glb) => {
       this.model = glb.scene;
       this.mixer = new THREE.AnimationMixer(this.model);

@@ -7,14 +7,14 @@ export default function MainText({ marginLeft = 0, marginRight = 0, children = n
   return (
     <FontFamilyProvider
       roboto={{
-       bold: "assets/Roboto-Black.json",
-       medium: "assets/Roboto-ExtraBold.json",
-       light: "assets/roboto.json",
+       bold: `${window.assetsUrl}/Roboto-Black.json`,
+       medium: `${window.assetsUrl}/Roboto-ExtraBold.json`,
+       light: `${window.assetsUrl}/roboto.json`,
       }}
       robotoItalic={{
-       bold: "assets/Roboto-BlackItalic.json",
-       medium: "assets/Roboto-BoldItalic.json",
-       light: "assets/Roboto-Italic.json",
+       bold: `${window.assetsUrl}/Roboto-BlackItalic.json`,
+       medium: `${window.assetsUrl}/Roboto-BoldItalic.json`,
+       light: `${window.assetsUrl}/Roboto-Italic.json`,
       }}
     >
       <Text
