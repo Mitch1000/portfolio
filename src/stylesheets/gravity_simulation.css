@@ -184,7 +184,7 @@ div.ui-canvas-container {
    display: flex;
    justify-content: flex-end;
    position: absolute;
-   top: 45%;
+   top: 10%;
    pointer-events: none;
    z-index: 1;
 }
