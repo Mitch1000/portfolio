@@ -1,4 +1,6 @@
-import * as THREE from 'three';
+import threeImporter from './threeImporter';
+const THREE = threeImporter();
+
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
@@ -106,52 +108,44 @@ class Character {
 
     dracoLoader.setDecoderPath('/');
     loader.setDRACOLoader(dracoLoader);
+    const handleCharacterModel = (glb) => {
+      this.model = glb.scene;
+      this.mixer = new THREE.AnimationMixer(this.model);
+
+      this.clips = glb.animations;
+
+      this.model.scale.setScalar(80);
+      this.model.rotation.set(0, (210 * (Math.PI / 180)), 0);
+      this.model.position.set(
+        window.innerWidth * 0.15 + this.offsetX,
+        0 + this.offsetY,
+        -30 + this.offsetZ,
+      );
+      this.setToIdleAnimation(glb.animations);
+      this.action.setLoop(THREE.LoopRepeat);
+      this.action.clampWhenFinished = true;
+      this.action.enable = true;
+      this.action.play();
+    };
 
     return new Promise((resolve, reject) => {
-      loader.load(
-        '/assets/Character.glb',
-        async (glb) => {
-          this.model = glb.scene;
-          this.mixer = new THREE.AnimationMixer(this.model);
+      const onCharacterSet = (setGlb) => {
+        const glb = window.character.glb = setGlb;
 
-          this.clips = glb.animations;
+        handleCharacterModel(glb);
+        resolve(glb.scene);
+      };
 
-          this.model.scale.setScalar(80);
-          this.model.rotation.set(0, (210 * (Math.PI / 180)), 0);
-          this.model.position.set(
-            window.innerWidth * 0.15 + this.offsetX,
-            0 + this.offsetY,
-            -30 + this.offsetZ,
-          );
-          this.setToIdleAnimation(glb.animations);
-          this.action.setLoop(THREE.LoopRepeat);
-          this.action.clampWhenFinished = true;
-          this.action.enable = true;
-          this.action.play();
-
-          resolve(this.model);
-        },
-        () => {
-        },
-        (error) => {
-          reject(error);
-          console.warn('An error happened when loading the Character model:', error);
-        },
-      );
+      if (((window.character.glb || {}).scene || {}).isObject3D) {
+        onCharacterSet(window.character.glb);
+        return;
+      }
+      window.character.onSetListeners
+        .push((glb) => onCharacterSet(glb));
     });
   }
 
-  fadeIn() {
-    this.setToRunAnimation(this.clips);
-    this.isFadingIn = false;
-    this.setToIdleAnimation(this.clips);
-  }
-
   animate(deltaTime) {
-    if (this.isFadingIn) {
-      this.fadeIn();
-    }
-
     if (this.mixer instanceof THREE.AnimationMixer) {
       this.mixer.update(deltaTime);
 

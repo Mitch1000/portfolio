@@ -1,6 +1,5 @@
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass }from 'three/examples/jsm/postprocessing/ShaderPass';
-import * as THREE from 'three';
 import CameraControls from 'camera-controls';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass';
@@ -13,6 +12,9 @@ import IntroTextRenderer from './introTextRenderer';
 import GravitySimulation from './gravitySimulation';
 import { handleTimeSlider, handleScenarioSelect } from './uiHelpers';
 import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js';
+import threeImporter from './threeImporter';
+
+const THREE = threeImporter();
 
 CameraControls.install({ THREE });
 // TODO: Stop relying so much on helper pattern

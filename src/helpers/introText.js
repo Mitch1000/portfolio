@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+import threeImporter from './threeImporter';
+const THREE = threeImporter();
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import { getToonMaterial, solidify } from './toonLighting';
@@ -58,7 +59,7 @@ class IntroText {
 
     let previosLetterXPosition = initialPositionX;
 
-    return loader.load('assets/Ignore.json', (font) => {
+    const onFontLoad = (font) => {
       for (let i = 0; i < this.textString.length; i += 1) {
         const character = this.textString.charAt(i);
         const geometry = new TextGeometry(character, {
@@ -125,7 +126,15 @@ class IntroText {
       }
 
       return this.messages;
-    });
+    };
+
+    if ((window.ignoreFont.font || {}).isFont) {
+      onFontLoad(window.ignoreFont.font);
+      return;
+    }
+
+    window.ignoreFont.onSetListeners
+      .push((font) => onFontLoad(font));
   }
 
   async draw() {

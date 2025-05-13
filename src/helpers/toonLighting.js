@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+import threeImporter from './threeImporter';
+const THREE = threeImporter();
 import TOON_TONE3 from '../assets/threeTone.jpg';
 import TOON_TONE2 from '../assets/twoTone.jpg';
 import TOON_TONE1 from '../assets/oneTone.jpg';

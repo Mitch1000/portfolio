@@ -3,7 +3,10 @@ const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-  entry: './src/index.js',
+  entry:  {
+    'main.js': '/src/index.js',
+    'preloader.js': '/src/preloader.js',
+  },
   mode: 'development',
   module: {
     rules: [
@@ -58,7 +61,7 @@ module.exports = {
     }),
   ],
   output: {
-    filename: 'main.js',
+    filename: '[name]',
     path: path.resolve(__dirname, 'dist'),
   },
 };

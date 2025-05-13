@@ -1,6 +1,4 @@
-import {
-  Vector2,
-} from 'three';
+const { Vector2 } = window.THREE;
 
 const CrtShader = {
   uniforms: {

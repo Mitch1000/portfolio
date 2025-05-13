@@ -34,8 +34,8 @@ export default class IntroTextRenderer {
   }
 
   async draw() {
-    await this.header.draw();
-    await this.subHeader.draw();
+    this.header.draw();
+    this.subHeader.draw();
     return { header: this.header, subHeader: this.subHeader };
   }
 

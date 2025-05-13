@@ -1,7 +1,7 @@
-import { Vector3 } from 'three';
 import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 
+const { Vector3 } = window.THREE;
 let mouseData = { clientX: 0, clientY: 0, buttons: 0 };
 let link = null;
 

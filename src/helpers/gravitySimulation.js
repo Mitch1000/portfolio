@@ -1,8 +1,9 @@
-import { Vector3 } from 'three';
 import PhysicsBody from './physicsBody';
 import Denormalizer from './denormalizer';
 import GravityCalculator from './gravityCalculator';
 import planetData from './planetData';
+
+const { Vector3 } = window.THREE;
 
 class GravitySimulation {
   constructor({

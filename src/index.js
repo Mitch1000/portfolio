@@ -1,3 +1,4 @@
-import code from './entry_points/code';
+window.setup = () => {
+  import('./entry_points/code');
+}
 
-code();

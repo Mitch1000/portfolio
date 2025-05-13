@@ -20,7 +20,6 @@ async function startSimulation(uiScene, uiCamera, simulation, renderer) {
   const appContainer = document.getElementsByClassName('app')[0];
   gravitySimContainer.style.opacity = 1;
   app.style.opacity = 1;
-  console.log('gravitySimContainer', gravitySimContainer);
 
   canvas.style.opacity = 1;
 

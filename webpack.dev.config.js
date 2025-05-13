@@ -1,7 +1,10 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/index.js',
+  entry:  {
+    'main.js': '/src/index.js',
+    'preloader.js': '/src/preloader.js',
+  },
   mode: 'development',
   devtool: 'source-map',
   module: {
@@ -40,7 +43,7 @@ module.exports = {
     // make sure to include the plugin for the magic
   ],
   output: {
-    filename: 'main.js',
+    filename: '[name]',
     path: path.resolve(__dirname, 'public'),
   },
 };

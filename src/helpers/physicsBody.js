@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+import threeImporter from './threeImporter';
+const THREE = threeImporter();
 import { getToonMaterial, solidify } from './toonLighting';
 import Vector from './vector';
 
