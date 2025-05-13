@@ -20,7 +20,7 @@ export default function ControlOverlay() {
             <div className="slider--handle-scaler">
               <div
                 className="slider--handle-box"
-              />
+              ></div>
             </div>
           </div>
           <div className="slider" />
