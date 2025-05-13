@@ -41,12 +41,9 @@ module.exports = {
     minimize: true,
     minimizer: [
       new TerserPlugin({
-        terserOptions: {
-          compress: {
-            drop_console: true,
-          },
-          mangle: true,
-        },
+        minify: TerserPlugin.esbuildMinify,
+        test: /\.(js|jsx)$/,
+        extractComments: true,
       }),
     ],
   },
