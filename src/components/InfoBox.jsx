@@ -59,6 +59,9 @@ class InfoBox extends React.Component {
   }
 
   render() {
+    const velocityX = this.state.currentPlanet.velocity.x / 1000;
+    const velocityY = this.state.currentPlanet.velocity.y / 1000;
+
     return (
     <Container
       name="info-box"
@@ -94,25 +97,33 @@ class InfoBox extends React.Component {
        >
          <InfoField label="Name" labelWeight="medium" fontWeight="light" value={this.state.currentPlanet.name}/>
          <InfoField label="Mass (kg)" value={this.state.currentPlanet.mass.toPrecision(7)}/>
-         <InfoField label="Density (kg/m3)" value={this.state.currentPlanet.density.toPrecision(5)}/>
+         <InfoField
+           label="Density (kg/m&)"
+           value={this.state.currentPlanet.density.toPrecision(5)}
+           labelSplit="&"
+           supText="3"
+         />
          <InfoField label="Visual Scale" value={this.state.currentPlanet.scale}/>
 
          <CoordinateBox
            x={this.state.currentPlanet.position.x}
            y={this.state.currentPlanet.position.y}
-           label="Position: "
+           label="Position (km): "
+         >
+         </CoordinateBox>
+ 
+         <CoordinateBox
+           x={this.state.currentPlanet.velocity.x / 1000}
+           y={this.state.currentPlanet.velocity.y / 1000}
+           label="Velocity (km/s): "
          >
          </CoordinateBox>
          <CoordinateBox
-           x={this.state.currentPlanet.velocity.x}
-           y={this.state.currentPlanet.velocity.y}
-           label="Velocity: "
-         >
-         </CoordinateBox>
-         <CoordinateBox
-           x={this.state.currentPlanet.acceleration.x}
-           y={this.state.currentPlanet.acceleration.y}
-           label="Acceleration: "
+           x={velocityX}
+           y={velocityY}
+           label="Acceleration (m/s&): "
+           supText="2"
+           labelSplit="&"
          >
          </CoordinateBox>
        </Container>
