@@ -3,7 +3,7 @@ const { forwardRef, useEffect, useMemo, useRef } = window.React;
 import { Root } from './root.js';
 import { batch, signal } from '@preact/signals-core';
 const { createPortal, useFrame, useStore, useThree } = window.ReactFiber;
-import { updateSizeFullscreen } from '../helpers/fullscreen.js';
+import { updateSizeFullscreen } from '@pmndrs/uikit/internals';
 export const Fullscreen = forwardRef((properties, ref) => {
     const store = useStore();
     const camera = useThree((s) => s.camera);
