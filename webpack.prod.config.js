@@ -6,7 +6,10 @@ module.exports = {
   entry:  {
     'main.js': '/src/index.js',
   },
-  mode: 'development',
+  mode: 'production',
+  resolve: {
+    modules: [path.resolve(__dirname, 'node_modules'), path.resolve(__dirname, 'modules')]
+  },
   module: {
     rules: [
       {
