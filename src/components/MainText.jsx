@@ -1,5 +1,6 @@
-import React from 'react';
-import { FontFamilyProvider, Text } from '@react-three/uikit';
+const React = window.React;
+import { Text } from '../test/text.js';
+import { FontFamilyProvider } from '../test/font.js';
 
 export default function MainText({ marginLeft = 0, marginRight = 0, children = null, fontWeight = 'medium', color = 'black', isItalic = false }) {
   const fontFamily = isItalic ? 'robotoItalic' : 'roboto';

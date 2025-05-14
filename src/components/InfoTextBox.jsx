@@ -1,5 +1,5 @@
-import React from 'react';
-import { Container } from '@react-three/uikit';
+const React = window.React;
+import { Container } from '../test/container.js';
 
 export default function InfoTextBox(props) {
   return (

@@ -1,7 +1,7 @@
-import React from 'react';
-import { useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
-import { WebGLRenderer } from 'three';
+const React = window.React;
+const { useEffect } = window.React;
+const { useFrame, useThree } = window.ReactFiber;
+const { WebGLRenderer } = window.THREE;
 
 
 let hasRendered = false;

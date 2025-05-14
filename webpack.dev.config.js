@@ -3,7 +3,6 @@ const path = require('path');
 module.exports = {
   entry:  {
     'main.js': '/src/index.js',
-    'preloader.js': '/src/preloader.js',
   },
   mode: 'development',
   devtool: 'source-map',

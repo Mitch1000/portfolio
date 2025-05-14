@@ -1,7 +1,8 @@
-import React, {useEffect} from 'react';
-import { useRef, useState } from 'react'
+const React = window.React;
+const { useRef, useState, useEffect } = window.React;
 
-import { Container, Svg } from '@react-three/uikit';
+import { Container } from '../test/container.js';
+import { Svg } from '../test/svg.js';
 import { setLink } from '../helpers/uiHelpers';
 
 let isHoverGit = false;

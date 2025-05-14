@@ -1,7 +1,10 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Fullscreen, Container } from '@react-three/uikit';
-import React from 'react';
+const { useState, useEffect, lazy, Suspense } = window.React;
+const { Canvas } = window.ReactFiber;
+import { Container } from '../test/container.js';
+import { Fullscreen } from '../test/fullscreen.js';
+import { updateSizeFullscreen } from '../helpers/fullscreen.js';
+import { Root } from '../test/root.js';
+const React = window.React;
 import { main } from '../helpers/index';
 import { onCanvasClick, setMousePosition } from '../helpers/uiHelpers';
 import Styles from '../stylesheets/gravity_simulation.css';
@@ -16,6 +19,7 @@ let currentTimeScale = null;
 let isBoxOpen = false; 
 
 export default function GravitySimulation() {
+  const windowScaleFactor = 141;
   const [isScaled, setIsScaled] = useState(0);
   const [simulation, setSimulation] = useState({});
   const [isInfoBoxOpen, setIsInfoBoxOpen] = useState(false);

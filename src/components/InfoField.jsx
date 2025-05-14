@@ -1,4 +1,4 @@
-import React from 'react';
+const React = window.React;
 import MainText from './MainText.jsx';
 import InfoTextBox from './InfoTextBox.jsx';
 

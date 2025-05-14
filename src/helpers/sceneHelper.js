@@ -11,7 +11,6 @@ import Character from './character';
 import IntroTextRenderer from './introTextRenderer';
 import GravitySimulation from './gravitySimulation';
 import { handleTimeSlider, handleScenarioSelect } from './uiHelpers';
-import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js';
 import threeImporter from './threeImporter';
 
 const THREE = threeImporter();
@@ -110,7 +109,7 @@ export default class SceneHelper {
   }
 
   initCamera(drawDistance) {
-    this.camera = new THREE.PerspectiveCamera(
+    this.camera = new window.THREE.PerspectiveCamera(
       50,
       window.innerWidth / window.innerHeight,
       50,

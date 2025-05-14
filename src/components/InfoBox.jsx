@@ -1,7 +1,7 @@
-import React from 'react';
-import { createRef } from 'react';
-import { Container  } from '@react-three/uikit';
-import { Color } from 'three';
+const React = window.React;
+const { createRef } = window.React;
+import { Container  } from '../test/container.js';
+const { Color } = window.THREE;
 import InfoField from './InfoField.jsx';
 import CoordinateBox  from './CoordinateBox.jsx';
 

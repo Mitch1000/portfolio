@@ -1,6 +1,7 @@
-import React from 'react';
-import { Canvas } from '@react-three/fiber'
-import { Fullscreen, Container } from '@react-three/uikit'
+const React = window.React;
+const { Canvas } = window.ReactFiber;
+import { Container } from '../test/container.js';
+import { Fullscreen } from '../test/fullscreen.js';
 
 export default function UIComponent() {
   return (

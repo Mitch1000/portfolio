@@ -5,7 +5,6 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = {
   entry:  {
     'main.js': '/src/index.js',
-    'preloader.js': '/src/preloader.js',
   },
   mode: 'development',
   module: {
