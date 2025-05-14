@@ -56,13 +56,9 @@
       window.character = character;
       window.ignoreFont = ignoreFont;
       window.assetsUrl = 'https://character-2ea.pages.dev/assets';
-      let hasSetup = false;
       
       loader.load(`${window.assetsUrl}/Character.glb`, (glb) => {
         window.character.set('glb', glb);
-        if (!hasSetup) {
-          window.setup();
-        }
       });
       
       fontLoader.load(`${window.assetsUrl}/Ignore.json`, (font) => {
@@ -70,7 +66,6 @@
       });
 
       if (typeof window.setup === 'function') {
-        hasSetup = true;
         window.setup();
       }
     </script>
