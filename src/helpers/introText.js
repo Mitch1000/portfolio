@@ -1,7 +1,6 @@
 import threeImporter from './threeImporter';
 const THREE = threeImporter();
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
+const { TextGeometry } = window.examples;
 import { getToonMaterial, solidify } from './toonLighting';
 
 class IntroText {
@@ -43,8 +42,6 @@ class IntroText {
   }
 
   async drawText(minCharacterSpace = 60) {
-    const loader = new FontLoader();
-
     const {
       scale,
       initialPositionX,

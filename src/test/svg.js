@@ -5,6 +5,7 @@ import { AddHandlers, usePropertySignals } from './utils.js';
 import { ParentProvider, useParent } from './context.js';
 import { useComponentInternals } from './ref.js';
 import { DefaultProperties } from './default.js';
+
 export const Svg = forwardRef((properties, ref) => {
     const parent = useParent();
     const outerRef = useRef(null);

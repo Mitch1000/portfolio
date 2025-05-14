@@ -1,12 +1,15 @@
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { ShaderPass }from 'three/examples/jsm/postprocessing/ShaderPass';
 import CameraControls from 'camera-controls';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
 import { CrtShader } from './tvShader';
+
+const {
+  RenderPass,
+  UnrealBloomPass,
+  ClearPass,
+  EffectComposer,
+  SMAAPass,
+  ShaderPass,
+  OutputPass,
+} = window.examples;
 import Character from './character';
 import IntroTextRenderer from './introTextRenderer';
 import GravitySimulation from './gravitySimulation';

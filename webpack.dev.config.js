@@ -4,6 +4,9 @@ module.exports = {
   entry:  {
     'main.js': '/src/index.js',
   },
+  resolve: {
+    modules: [path.resolve(__dirname, 'node_modules'), path.resolve(__dirname, 'modules')]
+  },
   mode: 'development',
   devtool: 'source-map',
   module: {

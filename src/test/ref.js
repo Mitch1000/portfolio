@@ -1,6 +1,6 @@
 import { untracked } from '@preact/signals-core';
 const { useImperativeHandle } = window.React;
-import { Mesh } from 'three';
+const { Mesh } = window.THREE;
 export function useComponentInternals(ref, root, styleSignal, internals, interactionPanel, additional) {
     useImperativeHandle(ref, () => {
         const { scrollPosition, paddingInset, borderInset, globalMatrix, relativeCenter, size, maxScrollPosition } = internals;

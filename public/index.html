@@ -11,18 +11,46 @@
     <script async src="main.js"></script>
 
     <script type="module">
-      import * as THREE from 'https://esm.sh/three@0.172.0';
-      import { GLTFLoader } from 'https://esm.sh/three@0.172.0/examples/jsm/loaders/GLTFLoader.js';
-      import { DRACOLoader } from 'https://esm.sh/three@0.172.0/examples/jsm/loaders/DRACOLoader.js';
-      import { FontLoader } from 'https://esm.sh/three@0.172.0/examples/jsm/loaders/FontLoader.js';
+      import * as THREE from 'https://esm.sh/three@0.176.0';
+      import { GLTFLoader } from 'https://esm.sh/three@0.176.0/examples/jsm/loaders/GLTFLoader.js';
+      import { DRACOLoader } from 'https://esm.sh/three@0.176.0/examples/jsm/loaders/DRACOLoader.js';
+      import { FontLoader } from 'https://esm.sh/three@0.176.0/examples/jsm/loaders/FontLoader.js';
       import React from 'https://esm.sh/react@19.1.0';
       import ReactDOM from "https://esm.sh/react-dom@19.1.0/client"
       import * as ReactFiber from 'https://esm.sh/@react-three/fiber@9.1.2';
+      import { RenderPass } from 'https://esm.sh/three@0.176.0/examples/jsm/postprocessing/RenderPass';
+      import { ShaderPass }from 'https://esm.sh/three@0.176.0/examples/jsm/postprocessing/ShaderPass';
+      import { UnrealBloomPass } from 'https://esm.sh/three@0.176.0/examples/jsm/postprocessing/UnrealBloomPass';
+      import { ClearPass } from 'https://esm.sh/three@0.176.0/examples/jsm/postprocessing/ClearPass';
+      import { EffectComposer } from 'https://esm.sh/three@0.176.0/examples/jsm/postprocessing/EffectComposer';
+      import { SMAAPass } from 'https://esm.sh/three@0.176.0/examples/jsm/postprocessing/SMAAPass';
+      import { OutputPass } from 'https://esm.sh/three@0.176.0/examples/jsm/postprocessing/OutputPass';
+      import { TextGeometry } from 'https://esm.sh/three@0.176.0/examples/jsm/geometries/TextGeometry';
+      import { SVGLoader } from 'https://esm.sh/three@0.176.0/examples/jsm/loaders/SVGLoader.js';
+      import { MathUtils } from 'https://esm.sh/three@0.176.0/src/math/MathUtils.js';
+      import * as ThreeCore from 'https://esm.sh/three@0.176.0/build/three.core.js';
 
+
+      window.ThreeCore = ThreeCore;
       window.THREE = THREE;
       window.React = React;
       window.ReactDOM = ReactDOM;
       window.ReactFiber = ReactFiber;
+      window.MathUtils = MathUtils;
+
+      window.examples = {
+        RenderPass,
+        ShaderPass,
+        UnrealBloomPass,
+        ClearPass,
+        EffectComposer,
+        SMAAPass,
+        OutputPass,
+        TextGeometry,
+        SVGLoader,
+      };
+
+
       
       const loader = new GLTFLoader();
       const dracoLoader = new DRACOLoader();

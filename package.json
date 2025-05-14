@@ -43,9 +43,7 @@
   "dependencies": {
     "@babel/preset-react": "^7.27.1",
     "@pmndrs/uikit": "^0.8.18",
-    "@react-three/fiber": "^9.1.2",
     "@react-three/postprocessing": "^3.0.4",
-    "@react-three/uikit": "^0.8.18",
     "camera-controls": "^2.9.0",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
@@ -59,7 +57,6 @@
     "stats.js": "^0.17.0",
     "style-loader": "^4.0.0",
     "terser": "^5.37.0",
-    "three": "^0.172.0",
     "vscode-html-languageservice": "^5.4.0",
     "webpack": "^5.97.1"
   },
