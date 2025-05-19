@@ -169,12 +169,8 @@ export function handleTimeSlider(timeSliderCallback) {
   return handleSlider(timeSliderCallback, timeSliderEl);
 }
 
-export function onCanvasClick({ parentEvent, simulation }) {
-  const { scene, camera, raycaster } = simulation;
-
-  const mousePosition = getMousePositionFromEvent(parentEvent);
-  const raycastIntersections = manageRaycasterIntersections(mousePosition, scene, camera, raycaster);
-  const [clickedObject] = raycastIntersections;
+export function onClick({ parentEvent, simulation, clickedObjects }) {
+  const [clickedObject] = clickedObjects;
 
   if (typeof clickedObject !== 'object') {
     return null;
@@ -243,11 +239,6 @@ export function getMouseData() {
 }
 
 export function handleCursor({ simulation, raycaster }) {
-  if (mouseData.buttons !== 0) { 
-    onCanvasClick({ parentEvent: mouseData, simulation });
-    return;
-  }
-
   const { scene, camera } = simulation;
   if (typeof scene !== 'object' || typeof camera !== 'object') {
     return;
@@ -255,8 +246,25 @@ export function handleCursor({ simulation, raycaster }) {
 
   const mousePos = getMousePositionFromEvent(mouseData);
   const raycastIntersections = manageRaycasterIntersections(mousePos, scene, camera, raycaster);
+  const clickableInteractions = raycastIntersections.filter(object =>  {
+    const clickedObject = object.object;
+    if (typeof clickedObject !== 'object') {
+      return false;
+    }
 
-  if (raycastIntersections.length > 0) {
+    if (typeof clickedObject.name !== 'string') {
+      return false;
+    }
+    return !clickedObject.name.includes('Line');
+  });
+
+  if (mouseData.buttons !== 0) {
+    onClick({ parentEvent: mouseData, simulation, clickedObjects: clickableInteractions });
+    return;
+  }
+
+
+  if (clickableInteractions.length > 0) {
     return document.body.style.cursor = 'pointer';
   }  
 }
