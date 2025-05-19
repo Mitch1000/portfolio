@@ -3,7 +3,7 @@ let hasSetup = false;
 window.setup = () => {
   hasSetup = true;
   import('./entry_points/code');
-}
+};
 
 const isObj = (value) => typeof value === 'object';
 const hasLoaded = isObj(window.THREE)

@@ -6,7 +6,6 @@ const { WebGLRenderer } = window.THREE;
 
 let hasRendered = false;
 let startedRendering = false;
-// const { onCanvasClick } = uiHelpers;
 // TODO: Remove this as it only here to get the uiScene object.
 async function startSimulation(uiScene, uiCamera, simulation, renderer) {
   const offsetX = window.innerWidth * -0.12;

@@ -4,7 +4,7 @@ import { Container } from '../test/container.js';
 import { Fullscreen } from '../test/fullscreen.js';
 const React = window.React;
 import { main } from '../helpers/index';
-import { onCanvasClick, setMousePosition } from '../helpers/uiHelpers';
+import { setPlanetClickHandler, setMousePosition } from '../helpers/uiHelpers';
 import Styles from '../stylesheets/gravity_simulation.css';
 import InfoBox from './InfoBox.jsx';
 import Links from './Links.jsx';
@@ -12,16 +12,15 @@ import ControlOverlay from './ControlOverlay.jsx';
 import YearCount from './YearCount.jsx';
 import MainScene from './MainScene.jsx';
 //const MainScene = lazy(() => import('./MainScene.jsx'));
-
-let currentTimeScale = null; 
-let isBoxOpen = false; 
+let isClicked = false;
 
 export default function GravitySimulation() {
   const [simulation, setSimulation] = useState({});
+  const [timeScale, setTimeScale] = useState(0);
   const [isInfoBoxOpen, setIsInfoBoxOpen] = useState(false);
   const [clickedPlanet, setClickedPlanet] = useState(null);
   const [parentEvent, setParentEvent] = useState(null);
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
   const [yearCount, setYearCount] = useState(year);
 
   const yearCountUpdater = (value) => {
@@ -29,44 +28,48 @@ export default function GravitySimulation() {
   };
 
   const isInfoBoxClicked = false;
+  // For pausing the simulation when an info box is opened.
+  const setSimulationTimeScale = (value, sim) => {
+    sim.gravitySimulation.setTimeScale(value);
+  };
 
-  const onSimulationClick = (event) => {
-    const sim = simulation;
-    const setTimeScale = (value) => {
-      sim.gravitySimulation.setTimeScale(value);
-    };
+  const planetClickHandler = (planet, sim) => {
+    if (!isClicked) { return; }
 
-    if (currentTimeScale === null) {
-      currentTimeScale = sim.gravitySimulation.getTimeScale();
-    }
-
-    if (isBoxOpen && !isInfoBoxClicked) {
-      setTimeScale(currentTimeScale);
-      isBoxOpen = false;
-      return setIsInfoBoxOpen(false);
-    }
-
-    const planet = onCanvasClick({
-      parentEvent: event, 
-      simulation: sim, 
-    });
-
+    isClicked = false;
     setClickedPlanet(planet);
 
-    setParentEvent(event);
     const isPlanetClick = planet !== null && typeof planet === 'object';
 
     setIsInfoBoxOpen(isPlanetClick);
-    isBoxOpen = isPlanetClick;
-    if (isPlanetClick){
-      currentTimeScale = sim.gravitySimulation.getTimeScale();
-      return setTimeScale(0);
+    if (isPlanetClick) {
+      setTimeScale(sim.gravitySimulation.getTimeScale());
+      return setSimulationTimeScale(0, sim);
+    }
+  };
+
+
+  const onSimulationClick = (event) => {
+    const sim = simulation;
+    isClicked = true;
+    if (timeScale === null) {
+      setTimeScale(sim.gravitySimulation.getTimeScale());
+    }
+
+    setMousePosition(event);
+    setParentEvent(event);
+
+    // Close the Info Box and set time scale
+    if (isInfoBoxOpen && !isInfoBoxClicked) {
+      setSimulationTimeScale(timeScale, sim);
+
+      return setIsInfoBoxOpen(false);
     }
   };
 
   const handleMouseMove = (event) => {
     setMousePosition(event);
-  }
+  };
 
   useEffect(() => {
     const sim = main(yearCountUpdater);
@@ -74,13 +77,15 @@ export default function GravitySimulation() {
     addEventListener('resize', () => {
       sim.renderer.setSize(window.innerWidth, window.innerHeight);
     });
-  }, [setSimulation])
+
+    setPlanetClickHandler(planetClickHandler);
+  }, [setSimulation]);
 
   return (
     <div
       className="gravity-simulation"
     >
-      <canvas id="root" onMouseMove={handleMouseMove} onClick={onSimulationClick}></canvas>
+      <canvas id="root" onMouseMove={handleMouseMove} onMouseDown={onSimulationClick}></canvas>
       <ControlOverlay> </ControlOverlay>
         <div
           id="ui-canvas-container"

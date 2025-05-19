@@ -89,22 +89,22 @@ function updatePlanetWithInfoBoxData() {
   }
 }
 
-function onPlanetClick({ simulation, clickedObject }) {
-    const OBJECT_NAME_PREFACE = PhysicsBody.getObjectNamePreface();
+function onPlanetClick({ simulation, clickedObject, parentEvent }) {
+  const OBJECT_NAME_PREFACE = PhysicsBody.getObjectNamePreface();
 
-    const clickedSceneObjectName = clickedObject.object.name.replace(OBJECT_NAME_PREFACE, '');
+  const clickedSceneObjectName = clickedObject.object.name.replace(OBJECT_NAME_PREFACE, '');
 
+  const { physicsBodies } = simulation.gravitySimulation;
+  const clickedBody = physicsBodies
+    .find((body) => body.name === clickedSceneObjectName);
 
-    const { physicsBodies } = simulation.gravitySimulation;
-    const clickedBody = physicsBodies
-      .find((body) => body.name === clickedSceneObjectName);
-
-    if (typeof clickedBody === 'object') {
-      return clickedBody;
-    }
-
+  if (typeof clickedBody !== 'object') {
     return null;
+  }
 
+  planetClickHandler(clickedBody, simulation);
+
+  return clickedBody;
 }
 
 function getMousePositionFromEvent(event) {
@@ -137,13 +137,13 @@ function onTextClick({ simulation, clickedObject }) {
 
   textGroup.ySpeed = 0.12;
   setTimeout(() => {
-     textGroup.ySpeed = originalYSpeed;
+    textGroup.ySpeed = originalYSpeed;
   }, (50 * 12) + 1000);
 
   return null;
 }
 
-function onCharacterClick({ simulation, clickedObject }) {
+function onCharacterClick({ simulation }) {
   if (typeof simulation.character !== 'object') {
     return null;
   }
@@ -158,37 +158,43 @@ function onCharacterClick({ simulation, clickedObject }) {
   return null;
 }
 
+let planetClickHandler = () => {};
+export function setPlanetClickHandler(clickHandler) {
+  planetClickHandler = clickHandler;
+  return planetClickHandler;
+}
+
 export function handleTimeSlider(timeSliderCallback) {
   const timeSliderEl = document.getElementById('time-slider');
   return handleSlider(timeSliderCallback, timeSliderEl);
 }
 
 export function onCanvasClick({ parentEvent, simulation }) {
-    const { scene, camera, raycaster } = simulation;
+  const { scene, camera, raycaster } = simulation;
 
-    const mousePosition = getMousePositionFromEvent(parentEvent);
-    const raycastIntersections = manageRaycasterIntersections(mousePosition, scene, camera, raycaster);
-    const [clickedObject] = raycastIntersections;
+  const mousePosition = getMousePositionFromEvent(parentEvent);
+  const raycastIntersections = manageRaycasterIntersections(mousePosition, scene, camera, raycaster);
+  const [clickedObject] = raycastIntersections;
 
-    if (typeof clickedObject !== 'object') {
-      return null;
-    }
-
-    const objectName = clickedObject.object.name;
-    if (objectName.includes('Text')) {
-      return onTextClick({ simulation, clickedObject });
-    }
-
-    if (objectName.includes('Planet')) {
-      return onPlanetClick({ simulation, clickedObject });
-    }
-
-    if (objectName.includes('Character')) {
-      return onCharacterClick({ simulation, clickedObject });
-    }
-
+  if (typeof clickedObject !== 'object') {
     return null;
-    // updatePlanetWithInfoBoxData();
+  }
+
+  const objectName = clickedObject.object.name;
+  if (objectName.includes('Text')) {
+    return onTextClick({ simulation, clickedObject });
+  }
+
+  if (objectName.includes('Planet')) {
+    return onPlanetClick({ simulation, clickedObject, parentEvent });
+  }
+
+  if (objectName.includes('Character')) {
+    return onCharacterClick({ simulation, clickedObject });
+  }
+
+  return null;
+  // updatePlanetWithInfoBoxData();
 }
 
 export function handleScenarioSelect(initialScenario, scenarioKeys, scenarioSelectCallback) {
@@ -238,10 +244,11 @@ export function getMouseData() {
 
 export function handleCursor({ simulation, raycaster }) {
   if (mouseData.buttons !== 0) { 
+    onCanvasClick({ parentEvent: mouseData, simulation });
     return;
   }
 
-  const { scene, camera, uiScene, uiCamera } = simulation;
+  const { scene, camera } = simulation;
   if (typeof scene !== 'object' || typeof camera !== 'object') {
     return;
   }

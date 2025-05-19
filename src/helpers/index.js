@@ -43,7 +43,7 @@ export function animate() {
   gravitySimulation.animate(yearCountUpdater);
 
 
-  handleCursor({ simulation: sceneHelper, raycaster })
+  handleCursor({ simulation: sceneHelper, raycaster });
 
   // sceneHelper.renderer.setTransparentSort(reversePainterSortStable);
   sceneHelper.controls.update(deltaTime);

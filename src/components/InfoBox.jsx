@@ -23,7 +23,8 @@ class InfoBox extends React.Component {
       maxWidth: 390,
       maxHeight: 420,
       minHeight: 360,
-    }
+    };
+
     if (typeof (clickedPlanet || {}).name !== 'string') { 
       return;
     }
