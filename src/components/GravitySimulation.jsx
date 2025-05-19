@@ -4,7 +4,7 @@ import { Container } from '../test/container.js';
 import { Fullscreen } from '../test/fullscreen.js';
 const React = window.React;
 import { main } from '../helpers/index';
-import { setPlanetClickHandler, setMousePosition } from '../helpers/uiHelpers';
+import { setPlanetClickHandler, setMousePosition, setCharacterClickHandler } from '../helpers/uiHelpers';
 import Styles from '../stylesheets/gravity_simulation.css';
 import InfoBox from './InfoBox.jsx';
 import Links from './Links.jsx';
@@ -48,6 +48,25 @@ export default function GravitySimulation() {
     }
   };
 
+  const characterClickHandler = ({ simulation }) => {
+    if (!isClicked) { return; }
+    isClicked = false;
+
+    if (typeof simulation.character !== 'object') {
+      return null;
+    }
+  
+    const { cycleAnimation } = simulation.character;
+  
+    if (typeof cycleAnimation !== 'function') {
+      return null;
+    }
+  
+    simulation.character.cycleAnimation();
+    return null;
+  };
+
+
 
   const onSimulationClick = (event) => {
     const sim = simulation;
@@ -79,6 +98,7 @@ export default function GravitySimulation() {
     });
 
     setPlanetClickHandler(planetClickHandler);
+    setCharacterClickHandler(characterClickHandler);
   }, [setSimulation]);
 
   return (

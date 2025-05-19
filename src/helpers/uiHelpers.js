@@ -143,25 +143,16 @@ function onTextClick({ simulation, clickedObject }) {
   return null;
 }
 
-function onCharacterClick({ simulation }) {
-  if (typeof simulation.character !== 'object') {
-    return null;
-  }
-
-  const { cycleAnimation } = simulation.character;
-
-  if (typeof cycleAnimation !== 'function') {
-    return null;
-  }
-
-  simulation.character.cycleAnimation();
-  return null;
-}
-
 let planetClickHandler = () => {};
 export function setPlanetClickHandler(clickHandler) {
   planetClickHandler = clickHandler;
   return planetClickHandler;
+}
+
+let characterClickHandler = () => {};
+export function setCharacterClickHandler(clickHandler) {
+  characterClickHandler = clickHandler;
+  return characterClickHandler;
 }
 
 export function handleTimeSlider(timeSliderCallback) {
@@ -186,7 +177,7 @@ export function onClick({ parentEvent, simulation, clickedObjects }) {
   }
 
   if (objectName.includes('Character')) {
-    return onCharacterClick({ simulation, clickedObject });
+    return characterClickHandler({ simulation });
   }
 
   return null;
