@@ -9,19 +9,19 @@ let isHoverGit = false;
 let isHoverLinkedIn = false;
 
 const checkIfHovering = (event, startX, startY, endX, endY) => {
-  let overX = false
-  let overY = false
+  let overX = false;
+  let overY = false;
   if (event.clientX > window.innerWidth - startX && event.clientX < window.innerWidth - endX) {
-    overX = true
+    overX = true;
   }
 
   if (event.clientY > window.innerHeight - startY && event.clientY < window.innerHeight - endY) {
-    overY = true
+    overY = true;
   }
-  return overX && overY 
+  return overX && overY;
 };
 
-export default function InfoLinks({ camera, mainScene }) {
+export default function InfoLinks() {
   const link = useRef();
   const [color, setColor] = useState('#fffab8');
   window.setColor = setColor;
@@ -45,12 +45,12 @@ export default function InfoLinks({ camera, mainScene }) {
     setLink(link.current.interactionPanel);
     document.addEventListener('mousemove', (event) => {
 
-      let fishEyeEffect = 12 
+      let fishEyeEffect = 12;
       const linkedInStart = { x: size * 2 + fishEyeEffect, y: size * 2 + fishEyeEffect };
-      isHoverLinkedIn = checkIfHovering(event, linkedInStart.x, linkedInStart.y, marginRight, marginBottom)
+      isHoverLinkedIn = checkIfHovering(event, linkedInStart.x, linkedInStart.y, marginRight, marginBottom);
 
       const gitStart = { x: size * 4 + fishEyeEffect, y: size * 1.8 };
-      isHoverGit = checkIfHovering(event, gitStart.x, gitStart.y, marginRight + size * 2, marginBottom)
+      isHoverGit = checkIfHovering(event, gitStart.x, gitStart.y, marginRight + size * 2, marginBottom);
 
 
       if(isHoverGit || isHoverLinkedIn) {
@@ -62,11 +62,11 @@ export default function InfoLinks({ camera, mainScene }) {
 
     document.addEventListener('mouseup', () => {
       if(isHoverGit) {
-        goToGithub()
+        goToGithub();
       }
 
       if(isHoverLinkedIn) {
-        goToLinkedIn()
+        goToLinkedIn();
       }
     });
   }, [link]);
@@ -109,5 +109,5 @@ export default function InfoLinks({ camera, mainScene }) {
         </Svg>
       </Container>
     </Container>
-  )
+  );
 }
