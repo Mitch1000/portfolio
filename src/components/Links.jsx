@@ -22,10 +22,10 @@ export default function InfoLinks() {
     window.open('https://www.linkedin.com/in/mitchelldrohan', '_blank');
   };
 
-  const marginRight = 45;
+  const marginRight = 65;
   const marginBottom = 34;
 
-  const size = 60;
+  const size = 80;
 
   useEffect(() => {
 

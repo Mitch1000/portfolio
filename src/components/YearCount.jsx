@@ -21,11 +21,11 @@ export default function YearCount(props) {
       >
         <Text
           marginLeft="16"
-          minWidth="220"
+          minWidth="240"
           marginBottom="18"
           color="#fffab8"
           fontFamily="roboto"
-          fontSize="34"
+          fontSize="38"
         >
           YEAR: {props.count}
         </Text>
