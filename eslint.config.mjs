@@ -14,6 +14,7 @@ export default defineConfig([
       '@stylistic/js/indent': ['error', 2],
       '@stylistic/js/semi': 'error',
       'no-console': 'warn',
+      'react/jsx-uses-vars': "error",
     },  
   },
   { files: ["**/*.{js,mjs,cjs,jsx}"], languageOptions: { globals: globals.browser } },
