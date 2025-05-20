@@ -29,11 +29,11 @@ export default function InfoLinks() {
 
   //TODO: Find a better way to handle ui events.
   const goToGithub = () => {
-    window.open('https://github.com/mitch1000', '_blank').focus();
+    window.open('https://github.com/mitch1000', '_blank');
   };
 
   const goToLinkedIn = () => {
-    window.open('https://www.linkedin.com/in/mitchelldrohan', '_blank').focus();
+    window.open('https://www.linkedin.com/in/mitchelldrohan', '_blank');
   };
 
   const marginRight = 45;
