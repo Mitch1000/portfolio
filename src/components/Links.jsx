@@ -36,10 +36,10 @@ export default function InfoLinks() {
     window.open('https://www.linkedin.com/in/mitchelldrohan', '_blank').focus();
   };
 
-  const marginRight = 40;
-  const marginBottom = 28;
+  const marginRight = 45;
+  const marginBottom = 34;
 
-  const size = 45;
+  const size = 60;
 
   useEffect(() => {
     setLink(link.current.interactionPanel);
