@@ -3,93 +3,8 @@ import PhysicsBody from './physicsBody';
 
 const { Vector3 } = window.THREE;
 let currentEvent = { clientX: 0, clientY: 0, buttons: 0 };
-let link = null;
 
-function updatePlanetWithInfoBoxData() {
-  const massInfoEl = this.$refs.mass;
-  const scaleInfoEl = this.$refs.scale;
-  const nameInfoEl = this.$refs.name;
-  const densityInfoEl = this.$refs.density;
-  const positionInfoEl = this.$refs.position;
-  const velocityInfoEl = this.$refs.velocity;
-
-  if ((this.massInput.value || {}).length > 0) {
-    const exponentSeparator = 'e+';
-    const massString = String(this.currentlyOpenBody.mass);
-    let exp = 1;
-
-    if (massString.includes(exponentSeparator)) {
-      const expString = massString.split(exponentSeparator)[1];
-
-      exp = parseInt(expString, 10);
-    } else {
-      exp = massString.length;
-    }
-
-    this.currentlyOpenBody.mass = parseInt(this.massInput.value, 10) * 10 ** exp;
-    massInfoEl
-      .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.mass.toPrecision(5))} kg`;
-    this.massInput.value = '';
-  }
-
-  if ((this.scaleInput.value || {}).length > 0) {
-    this.currentlyOpenBody.scale = parseFloat(this.scaleInput.value, 10);
-    scaleInfoEl
-      .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.scale)}`;
-    this.scaleInput.value = '';
-  }
-
-  if ((this.nameInput.value || {}).length > 0) {
-    this.currentlyOpenBody.name = this.nameInput.value;
-    nameInfoEl
-      .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.name)}`;
-    this.nameInput.value = '';
-  }
-
-  if ((this.densityInput.value || {}).length > 0) {
-    this.currentlyOpenBody.density = parseFloat(this.densityInput.value, 10);
-    densityInfoEl
-      .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.density)}`;
-    this.densityInput.value = '';
-  }
-
-  if ((this.positionXInput.value || {}).length > 0) {
-    this.currentlyOpenBody.position.x = parseFloat(this.positionXInput.value, 10) * 10 ** 9;
-    positionInfoEl
-      .getElementsByClassName('value')[0].innerHTML = `
-        x: ${Number(this.currentlyOpenBody.position.x.toPrecision(5) / 10 ** 9)} million km<br>
-        y: ${Number(this.currentlyOpenBody.position.y.toPrecision(5) / 10 ** 9)} million km`;
-    this.positionXInput.value = '';
-  }
-  if ((this.positionYInput.value || {}).length > 0) {
-    this.currentlyOpenBody.position.y = parseFloat(this.positionYInput.value, 10) * 1000;
-    positionInfoEl
-      .getElementsByClassName('value')[0].innerHTML = `
-        x: ${Number(this.currentlyOpenBody.position.x.toPrecision(5) / 10 ** 9)} million km<br>
-        y: ${Number(this.currentlyOpenBody.position.y.toPrecision(5) / 10 ** 9)} million kn`;
-    this.positionYInput.value = '';
-  }
-
-  if ((this.velocityXInput.value || {}).length > 0) {
-    this.currentlyOpenBody.velocity.x = parseFloat(this.velocityXInput.value, 10) * 1000;
-    velocityInfoEl
-      .getElementsByClassName('value')[0].innerHTML = `
-       &nbsp; &nbsp; x: ${Number(this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000)} km/s<br>
-       &nbsp; &nbsp; y: ${Number(this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000)} km/s`;
-    this.velocityXInput.value = '';
-  }
-
-  if ((this.velocityYInput.value || {}).length > 0) {
-    this.currentlyOpenBody.velocity.y = parseFloat(this.velocityYInput.value, 10) * 1000;
-    velocityInfoEl
-      .getElementsByClassName('value')[0].innerHTML = `
-        &nbsp; &nbsp; x: ${Number(this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000)} km/s<br>
-        &nbsp; &nbsp; y: ${Number(this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000)} km/s`;
-    this.velocityYInput.value = '';
-  }
-}
-
-function onPlanetClick({ simulation, clickedObject, parentEvent }) {
+function onPlanetClick({ simulation, clickedObject }) {
   const OBJECT_NAME_PREFACE = PhysicsBody.getObjectNamePreface();
 
   const clickedSceneObjectName = clickedObject.object.name.replace(OBJECT_NAME_PREFACE, '');
@@ -203,12 +118,6 @@ export function handleScenarioSelect(initialScenario, scenarioKeys, scenarioSele
   });
 };
 
-export function  handleInfoBoxClicked(parentEvent) {
-  isInfoBoxClicked = true;
-  handlePlanetInfoInputClicks(parentEvent);
-  // updatePlanetWithInfoBoxData();
-}
-
 export function getDistance(...args) {
   return Math.hypot(args[2] - args[0], args[3] - args[1]);
 }
@@ -218,11 +127,6 @@ export function setCurrentEvent(event) {
   currentEvent = event;
   return event;
 }
-
-export function setLink(value) {
-  link = value;
-}
-
 
 export function getMouseData() {
   return currentEvent;
@@ -248,7 +152,9 @@ export function handleCursor({ simulation, raycaster }) {
     return !clickedObject.name.includes('Line');
   });
 
-  if (currentEvent.buttons !== 0 || currentEvent.pointerType === "touch") {
+  const MOUSE_CLICK = 1 << 0;
+  const isLeftClick = currentEvent.buttons & MOUSE_CLICK;
+  if (isLeftClick || currentEvent.pointerType === "touch") {
     onClick({ parentEvent: currentEvent, simulation, clickedObjects: clickableInteractions });
     return;
   }
@@ -263,3 +169,95 @@ export function manageRaycasterIntersections(mouse, scene, camera, raycaster) {
   raycaster.setFromCamera(mouse, camera);
   return raycaster.intersectObjects(scene.children);
 }
+
+// function updatePlanetWithInfoBoxData() {
+//   const massInfoEl = this.$refs.mass;
+//   const scaleInfoEl = this.$refs.scale;
+//   const nameInfoEl = this.$refs.name;
+//   const densityInfoEl = this.$refs.density;
+//   const positionInfoEl = this.$refs.position;
+//   const velocityInfoEl = this.$refs.velocity;
+// 
+//   if ((this.massInput.value || {}).length > 0) {
+//     const exponentSeparator = 'e+';
+//     const massString = String(this.currentlyOpenBody.mass);
+//     let exp = 1;
+// 
+//     if (massString.includes(exponentSeparator)) {
+//       const expString = massString.split(exponentSeparator)[1];
+// 
+//       exp = parseInt(expString, 10);
+//     } else {
+//       exp = massString.length;
+//     }
+// 
+//     this.currentlyOpenBody.mass = parseInt(this.massInput.value, 10) * 10 ** exp;
+//     massInfoEl
+//       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.mass.toPrecision(5))} kg`;
+//     this.massInput.value = '';
+//   }
+// 
+//   if ((this.scaleInput.value || {}).length > 0) {
+//     this.currentlyOpenBody.scale = parseFloat(this.scaleInput.value, 10);
+//     scaleInfoEl
+//       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.scale)}`;
+//     this.scaleInput.value = '';
+//   }
+// 
+//   if ((this.nameInput.value || {}).length > 0) {
+//     this.currentlyOpenBody.name = this.nameInput.value;
+//     nameInfoEl
+//       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.name)}`;
+//     this.nameInput.value = '';
+//   }
+// 
+//   if ((this.densityInput.value || {}).length > 0) {
+//     this.currentlyOpenBody.density = parseFloat(this.densityInput.value, 10);
+//     densityInfoEl
+//       .getElementsByClassName('value')[0].innerHTML = `${Number(this.currentlyOpenBody.density)}`;
+//     this.densityInput.value = '';
+//   }
+// 
+//   if ((this.positionXInput.value || {}).length > 0) {
+//     this.currentlyOpenBody.position.x = parseFloat(this.positionXInput.value, 10) * 10 ** 9;
+//     positionInfoEl
+//       .getElementsByClassName('value')[0].innerHTML = `
+//         x: ${Number(this.currentlyOpenBody.position.x.toPrecision(5) / 10 ** 9)} million km<br>
+//         y: ${Number(this.currentlyOpenBody.position.y.toPrecision(5) / 10 ** 9)} million km`;
+//     this.positionXInput.value = '';
+//   }
+//   if ((this.positionYInput.value || {}).length > 0) {
+//     this.currentlyOpenBody.position.y = parseFloat(this.positionYInput.value, 10) * 1000;
+//     positionInfoEl
+//       .getElementsByClassName('value')[0].innerHTML = `
+//         x: ${Number(this.currentlyOpenBody.position.x.toPrecision(5) / 10 ** 9)} million km<br>
+//         y: ${Number(this.currentlyOpenBody.position.y.toPrecision(5) / 10 ** 9)} million kn`;
+//     this.positionYInput.value = '';
+//   }
+// 
+//   if ((this.velocityXInput.value || {}).length > 0) {
+//     this.currentlyOpenBody.velocity.x = parseFloat(this.velocityXInput.value, 10) * 1000;
+//     velocityInfoEl
+//       .getElementsByClassName('value')[0].innerHTML = `
+//        &nbsp; &nbsp; x: ${Number(this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000)} km/s<br>
+//        &nbsp; &nbsp; y: ${Number(this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000)} km/s`;
+//     this.velocityXInput.value = '';
+//   }
+// 
+//   if ((this.velocityYInput.value || {}).length > 0) {
+//     this.currentlyOpenBody.velocity.y = parseFloat(this.velocityYInput.value, 10) * 1000;
+//     velocityInfoEl
+//       .getElementsByClassName('value')[0].innerHTML = `
+//         &nbsp; &nbsp; x: ${Number(this.currentlyOpenBody.velocity.x.toPrecision(5) / 1000)} km/s<br>
+//         &nbsp; &nbsp; y: ${Number(this.currentlyOpenBody.velocity.y.toPrecision(5) / 1000)} km/s`;
+//     this.velocityYInput.value = '';
+//   }
+// }
+
+// export function handleInfoBoxClicked(parentEvent) {
+//   isInfoBoxClicked = true;
+//   handlePlanetInfoInputClicks(parentEvent);
+//   // updatePlanetWithInfoBoxData();
+// }
+
+

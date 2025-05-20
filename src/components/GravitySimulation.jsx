@@ -66,8 +66,6 @@ export default function GravitySimulation() {
     return null;
   };
 
-
-
   const onSimulationClick = (event) => {
     const sim = simulation;
     isClicked = true;
@@ -75,7 +73,6 @@ export default function GravitySimulation() {
       setTimeScale(sim.gravitySimulation.getTimeScale());
     }
 
-    setCurrentEvent(event);
     setParentEvent(event);
 
     // Close the Info Box and set time scale
@@ -83,6 +80,29 @@ export default function GravitySimulation() {
       setSimulationTimeScale(timeScale, sim);
 
       return setIsInfoBoxOpen(false);
+    }
+  };
+
+  const handleMouseDown = (event) => {
+    setCurrentEvent(event);
+
+    onSimulationClick(event);
+  };
+
+  const handlePointerDown = (event) => {
+    const pointerType = event.pointerType || '';
+    if (pointerType === 'mouse') {
+      return;
+    }
+    setCurrentEvent(event);
+
+    onSimulationClick(event);
+
+    // Ignore mouse pointer down event 
+    // as mouse clicks are handled by onMouseDown
+    // for better button recognition
+    if (pointerType === 'touch') {
+      event.preventDefault();
     }
   };
 
@@ -108,45 +128,46 @@ export default function GravitySimulation() {
       <canvas
         id="root"
         onMouseMove={handleMouseMove}
-        onPointerDown={onSimulationClick}
+        onPointerDown={handlePointerDown}
+        onMouseDown={handleMouseDown}
       ></canvas>
       <ControlOverlay> </ControlOverlay>
-        <div
-          id="ui-canvas-container"
-          className="ui-canvas-container"
+      <div
+        id="ui-canvas-container"
+        className="ui-canvas-container"
+      >
+        <Canvas
+          id="ui-root"
+          className="ui-scene"
+          style={{ pointerEvents: 'none' }}
+          gl={{ localClippingEnabled: true, clearDepth: true }}
         >
-          <Canvas
-            id="ui-root"
-            className="ui-scene"
-            style={{ pointerEvents: 'none' }}
-            gl={{ localClippingEnabled: true, clearDepth: true }}
-          >
-            <Fullscreen flexDirection="row" padding={0} gap={2} >
-              <MainScene simulation={simulation}></MainScene>
-              <Container
-                name="ui-container"
-                position="absolute"
-                positionTop={0} 
-                positionLeft={0} 
-                minWidth="100%"
-                minHeight="100%"
-                backgroundColor="#0096FF"
-                backgroundOpacity={0.01}
-              >
-                <YearCount count={yearCount}></YearCount>
+          <Fullscreen flexDirection="row" padding={0} gap={2} >
+            <MainScene simulation={simulation}></MainScene>
+            <Container
+              name="ui-container"
+              position="absolute"
+              positionTop={0} 
+              positionLeft={0} 
+              minWidth="100%"
+              minHeight="100%"
+              backgroundColor="#0096FF"
+              backgroundOpacity={0.01}
+            >
+              <YearCount count={yearCount}></YearCount>
 
-                {isInfoBoxOpen &&
-                  <InfoBox
-                    clickedPlanet={clickedPlanet}
-                    event={parentEvent}
-                  >
-                  </InfoBox>
-                }
-                <Links camera={simulation.camera} mainScene={simulation.scene}></Links>
-              </Container>
-            </Fullscreen>
-          </Canvas>
-        </div>
+              {isInfoBoxOpen &&
+                <InfoBox
+                  clickedPlanet={clickedPlanet}
+                  event={parentEvent}
+                >
+                </InfoBox>
+              }
+              <Links camera={simulation.camera} mainScene={simulation.scene}></Links>
+            </Container>
+          </Fullscreen>
+        </Canvas>
+      </div>
     </div>
-  )
+  );
 }

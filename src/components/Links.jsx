@@ -3,7 +3,6 @@ const { useRef, useState, useEffect } = window.React;
 
 import { Container } from '../test/container.js';
 import { Svg } from '../test/svg.js';
-import { setLink } from '../helpers/uiHelpers';
 
 let isHoverGit = false;
 let isHoverLinkedIn = false;
@@ -42,7 +41,6 @@ export default function InfoLinks() {
   const size = 60;
 
   useEffect(() => {
-    setLink(link.current.interactionPanel);
     document.addEventListener('mousemove', (event) => {
 
       let fishEyeEffect = 12;
