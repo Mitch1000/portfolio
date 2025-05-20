@@ -7,19 +7,6 @@ import { Svg } from '../test/svg.js';
 let isHoverGit = false;
 let isHoverLinkedIn = false;
 
-const checkIfHovering = (event, startX, startY, endX, endY) => {
-  let overX = false;
-  let overY = false;
-  if (event.clientX > window.innerWidth - startX && event.clientX < window.innerWidth - endX) {
-    overX = true;
-  }
-
-  if (event.clientY > window.innerHeight - startY && event.clientY < window.innerHeight - endY) {
-    overY = true;
-  }
-  return overX && overY;
-};
-
 export default function InfoLinks() {
   const link = useRef();
   const [color, setColor] = useState('#fffab8');
@@ -41,8 +28,24 @@ export default function InfoLinks() {
   const size = 60;
 
   useEffect(() => {
-    document.addEventListener('mousemove', (event) => {
 
+    const ctrl = new AbortController();
+    const { signal } = ctrl;
+
+    const checkIfHovering = (event, startX, startY, endX, endY) => {
+      let overX = false;
+      let overY = false;
+      if (event.clientX > window.innerWidth - startX && event.clientX < window.innerWidth - endX) {
+        overX = true;
+      }
+    
+      if (event.clientY > window.innerHeight - startY && event.clientY < window.innerHeight - endY) {
+        overY = true;
+      }
+      return overX && overY;
+    };
+
+    const getIsPointerOverLink = (event) => {
       let fishEyeEffect = 12;
       const linkedInStart = { x: size * 2 + fishEyeEffect, y: size * 2 + fishEyeEffect };
       isHoverLinkedIn = checkIfHovering(event, linkedInStart.x, linkedInStart.y, marginRight, marginBottom);
@@ -56,9 +59,10 @@ export default function InfoLinks() {
         return;
       }
       document.body.style.cursor = 'default';
-    });
+    };
 
-    document.addEventListener('mouseup', () => {
+
+    const handleLinkPress = () => {
       if(isHoverGit) {
         goToGithub();
       }
@@ -66,7 +70,24 @@ export default function InfoLinks() {
       if(isHoverLinkedIn) {
         goToLinkedIn();
       }
-    });
+    };
+
+    const handlePointerUp = (event) => {
+      getIsPointerOverLink(event);
+      handleLinkPress();
+    };
+
+    const handleMouseUp = () => {
+      handleLinkPress();
+    };
+
+    document.addEventListener('mousemove', getIsPointerOverLink, { signal });
+    document.addEventListener('pointerup', handlePointerUp, { signal });
+    document.addEventListener('mouseup', handleMouseUp, { signal });
+
+    return () => {
+      ctrl.abort();
+    };
   }, [link]);
 
   return (
