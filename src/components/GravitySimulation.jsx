@@ -4,7 +4,7 @@ import { Container } from '../test/container.js';
 import { Fullscreen } from '../test/fullscreen.js';
 const React = window.React;
 import { main } from '../helpers/index';
-import { setPlanetClickHandler, setMousePosition, setCharacterClickHandler } from '../helpers/uiHelpers';
+import { setPlanetClickHandler, setCurrentEvent, setCharacterClickHandler } from '../helpers/uiHelpers';
 import Styles from '../stylesheets/gravity_simulation.css';
 import InfoBox from './InfoBox.jsx';
 import Links from './Links.jsx';
@@ -75,7 +75,7 @@ export default function GravitySimulation() {
       setTimeScale(sim.gravitySimulation.getTimeScale());
     }
 
-    setMousePosition(event);
+    setCurrentEvent(event);
     setParentEvent(event);
 
     // Close the Info Box and set time scale
@@ -87,7 +87,7 @@ export default function GravitySimulation() {
   };
 
   const handleMouseMove = (event) => {
-    setMousePosition(event);
+    setCurrentEvent(event);
   };
 
   useEffect(() => {
@@ -105,7 +105,11 @@ export default function GravitySimulation() {
     <div
       className="gravity-simulation"
     >
-      <canvas id="root" onMouseMove={handleMouseMove} onMouseDown={onSimulationClick}></canvas>
+      <canvas
+        id="root"
+        onMouseMove={handleMouseMove}
+        onPointerDown={onSimulationClick}
+      ></canvas>
       <ControlOverlay> </ControlOverlay>
         <div
           id="ui-canvas-container"

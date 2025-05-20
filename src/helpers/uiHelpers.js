@@ -2,7 +2,7 @@ import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 
 const { Vector3 } = window.THREE;
-let mouseData = { clientX: 0, clientY: 0, buttons: 0 };
+let currentEvent = { clientX: 0, clientY: 0, buttons: 0 };
 let link = null;
 
 function updatePlanetWithInfoBoxData() {
@@ -214,10 +214,9 @@ export function getDistance(...args) {
 }
 
 
-export function setMousePosition(mouse) {
-  mouseData.clientX = mouse.clientX;
-  mouseData.clientY = mouse.clientY;
-  mouseData.buttons = mouse.buttons;
+export function setCurrentEvent(event) {
+  currentEvent = event;
+  return event;
 }
 
 export function setLink(value) {
@@ -226,7 +225,7 @@ export function setLink(value) {
 
 
 export function getMouseData() {
-  return mouseData;
+  return currentEvent;
 }
 
 export function handleCursor({ simulation, raycaster }) {
@@ -235,7 +234,7 @@ export function handleCursor({ simulation, raycaster }) {
     return;
   }
 
-  const mousePos = getMousePositionFromEvent(mouseData);
+  const mousePos = getMousePositionFromEvent(currentEvent);
   const raycastIntersections = manageRaycasterIntersections(mousePos, scene, camera, raycaster);
   const clickableInteractions = raycastIntersections.filter(object =>  {
     const clickedObject = object.object;
@@ -249,8 +248,8 @@ export function handleCursor({ simulation, raycaster }) {
     return !clickedObject.name.includes('Line');
   });
 
-  if (mouseData.buttons !== 0) {
-    onClick({ parentEvent: mouseData, simulation, clickedObjects: clickableInteractions });
+  if (currentEvent.buttons !== 0 || currentEvent.pointerType === "touch") {
+    onClick({ parentEvent: currentEvent, simulation, clickedObjects: clickableInteractions });
     return;
   }
 
