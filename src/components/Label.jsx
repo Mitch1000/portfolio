@@ -8,15 +8,15 @@ export default function Label({
   weight = 'medium',
   marginRight = 0,
 }) {
-  const labelSections = label.split(labelSplit)
+  const labelSections = label.split(labelSplit);
 
   return (
     <Container marginRight={marginRight}>
-     <MainText fontWeight={weight}> {labelSections[0]} </MainText>
-     <MainText fontWeight={weight} fontSize={20} marginTop={-10}> {supText} </MainText>
-     {typeof labelSections[1] === 'string' &&
-       <MainText fontWeight={weight}> {labelSections[1]} </MainText>
-     }
-   </Container>
+      <MainText fontWeight={weight}> {labelSections[0]} </MainText>
+      <MainText fontWeight={weight} fontSize={20} marginTop={-10}> {supText} </MainText>
+      {typeof labelSections[1] === 'string' &&
+        <MainText fontWeight={weight}> {labelSections[1]} </MainText>
+      }
+    </Container>
   );
 }
