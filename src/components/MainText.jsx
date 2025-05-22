@@ -18,14 +18,14 @@ export default function MainText({
   return (
     <FontFamilyProvider
       roboto={{
-       bold: `${window.assetsUrl}/Roboto-Black.json`,
-       medium: `${window.assetsUrl}/Roboto-ExtraBold.json`,
-       light: `${window.assetsUrl}/roboto.json`,
+        bold: `${window.assetsUrl}/Roboto-Black.json`,
+        medium: `${window.assetsUrl}/Roboto-ExtraBold.json`,
+        light: `${window.assetsUrl}/roboto.json`,
       }}
       robotoItalic={{
-       bold: `${window.assetsUrl}/Roboto-BlackItalic.json`,
-       medium: `${window.assetsUrl}/Roboto-BoldItalic.json`,
-       light: `${window.assetsUrl}/Roboto-Italic.json`,
+        bold: `${window.assetsUrl}/Roboto-BlackItalic.json`,
+        medium: `${window.assetsUrl}/Roboto-BoldItalic.json`,
+        light: `${window.assetsUrl}/Roboto-Italic.json`,
       }}
     >
       <Text
