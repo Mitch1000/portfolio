@@ -1,10 +1,9 @@
 const React = window.React;
 const { useEffect } = window.React;
-const { useFrame, useThree } = window.ReactFiber;
+const { useThree } = window.ReactFiber;
 const { WebGLRenderer } = window.THREE;
 
 
-let hasRendered = false;
 let startedRendering = false;
 // TODO: Remove this as it only here to get the uiScene object.
 async function startSimulation(uiScene, uiCamera, simulation, renderer) {
@@ -18,7 +17,7 @@ async function startSimulation(uiScene, uiCamera, simulation, renderer) {
   const gravitySimContainer = document.getElementsByClassName('gravity-simulation')[0];
   const appContainer = document.getElementsByClassName('app')[0];
   gravitySimContainer.style.opacity = 1;
-  app.style.opacity = 1;
+  appContainer.style.opacity = 1;
 
   canvas.style.opacity = 1;
 
@@ -28,7 +27,7 @@ async function startSimulation(uiScene, uiCamera, simulation, renderer) {
   // this.renderer.setPixelRatio( window.devicePixelRatio );
   rend.autoClear = false;
 
-  rend.localClippingEnabled = true
+  rend.localClippingEnabled = true;
 
   renderer.clearDepth = rend.clearDepth;
   
@@ -43,9 +42,7 @@ export default function MainScene({ simulation }) {
   useEffect(() => {
     if (!startedRendering) {
       startedRendering = true;
-      startSimulation(scene, camera, simulation, gl).then(() => {
-        hasRendered = true;
-      })
+      startSimulation(scene, camera, simulation, gl);
     }
   });
 
