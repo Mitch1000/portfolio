@@ -119,7 +119,7 @@ class Character {
       this.action.play();
     };
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const onCharacterSet = (setGlb) => {
         const glb = window.character.glb = setGlb;
 

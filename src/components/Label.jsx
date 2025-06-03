@@ -1,5 +1,6 @@
+import React from 'react';
 import MainText from './MainText.jsx';
-import { Container  } from '../test/container.js';
+import { Container  } from '@react-three/uikit';
 
 export default function Label({
   label = "Label",

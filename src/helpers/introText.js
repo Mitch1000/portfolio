@@ -1,6 +1,6 @@
 import threeImporter from './threeImporter';
 const THREE = threeImporter();
-const { TextGeometry } = window.examples;
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import { getToonMaterial, solidify } from './toonLighting';
 
 class IntroText {

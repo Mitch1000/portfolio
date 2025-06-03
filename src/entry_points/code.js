@@ -9,4 +9,5 @@ import App from '../app';
 function runApp() {
   return App;
 }
+
 export default runApp;

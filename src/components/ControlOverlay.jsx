@@ -1,4 +1,4 @@
-const React = window.React;
+import React from 'react';
 
 export default function ControlOverlay() {
   const handleCheck = () => {

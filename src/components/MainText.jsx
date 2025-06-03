@@ -1,6 +1,6 @@
-const React = window.React;
-import { Text } from '../test/text.js';
-import { FontFamilyProvider } from '../test/font.js';
+import React from 'react';
+import { Text } from '@react-three/uikit';
+import { FontFamilyProvider } from '@react-three/uikit';
 
 export default function MainText({
   marginLeft = 0,

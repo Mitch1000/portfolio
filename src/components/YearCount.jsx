@@ -1,7 +1,7 @@
-const React = window.React;
-import { Container } from '../test/container.js';
-import { FontFamilyProvider } from '../test/font.js';
-import { Text } from '../test/text.js';
+import React from 'react';
+import { Container } from '@react-three/uikit';
+import { FontFamilyProvider } from '@react-three/uikit';
+import { Text } from '@react-three/uikit';
 
 export default function YearCount(props) {
   return (

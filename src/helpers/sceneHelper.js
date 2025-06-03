@@ -1,15 +1,14 @@
 import CameraControls from 'camera-controls';
 import { CrtShader } from './tvShader';
 
-const {
-  RenderPass,
-  UnrealBloomPass,
-  ClearPass,
-  EffectComposer,
-  SMAAPass,
-  ShaderPass,
-  OutputPass,
-} = window.examples;
+import { RenderPass  } from 'three/examples/jsm/postprocessing/RenderPass';
+import { UnrealBloomPass  } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import { ClearPass  } from 'three/examples/jsm/postprocessing/ClearPass';
+import { EffectComposer  } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { SMAAPass  } from 'three/examples/jsm/postprocessing/SMAAPass';
+import { ShaderPass  } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { OutputPass  } from 'three/examples/jsm/postprocessing/OutputPass';
+
 import Character from './character';
 import IntroTextRenderer from './introTextRenderer';
 import GravitySimulation from './gravitySimulation';
@@ -112,7 +111,7 @@ export default class SceneHelper {
   }
 
   initCamera(drawDistance) {
-    this.camera = new window.THREE.PerspectiveCamera(
+    this.camera = new THREE.PerspectiveCamera(
       50,
       window.innerWidth / window.innerHeight,
       50,

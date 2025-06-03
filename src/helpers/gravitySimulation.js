@@ -3,7 +3,7 @@ import Denormalizer from './denormalizer';
 import GravityCalculator from './gravityCalculator';
 import planetData from './planetData';
 
-const { Vector3 } = window.THREE;
+import { Vector3 } from 'three';
 
 class GravitySimulation {
   constructor({

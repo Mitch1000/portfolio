@@ -3,11 +3,11 @@
 const React = window.React;
 const ReactDOM = window.ReactDOM;
 
-import GravitySimulation from './components/GravitySimulation.jsx';
-
 const container = document.getElementById('app');
 
 const root = ReactDOM.createRoot(container);
-root.render(<GravitySimulation />)
+root.render(
+  <div></div>
+);
 
 export default root;

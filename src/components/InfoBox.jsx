@@ -1,7 +1,7 @@
-const React = window.React;
-const { createRef } = window.React;
-import { Container  } from '../test/container.js';
-const { Color } = window.THREE;
+import React from 'react';
+import { createRef } from 'react';
+import { Container  } from '@react-three/uikit';
+import { Color } from 'three';
 import InfoField from './InfoField.jsx';
 import CoordinateBox  from './CoordinateBox.jsx';
 
@@ -64,72 +64,72 @@ class InfoBox extends React.Component {
     const velocityY = this.state.currentPlanet.velocity.y / 1000;
 
     return (
-    <Container
-      name="info-box"
-      maxWidth={0}
-      position="absolute"
-      positionTop={0}
-      positionLeft={10}
-      alignItems="flex-start"
-      justifyContent="flex-start"
-      backgroundColor="blue"
-    >
-       <Container
-         ref={this.infoBox}
-         flexGrow={1} 
-         minWidth={this.state.maxWidth}
-         minHeight={this.state.minHeight}
-         maxWidth={this.state.maxWidth}
-         maxHeight={this.state.maxHeight}
-         position='absolute'
-         positionLeft={this.state.positionX}
-         positionTop={this.state.positionY}
-         hover={{ backgroundOpacity: 1 }} 
-         backgroundColor={this.state.color}
-         backgroundOpacity={0.9}
-         flexDirection="column"
-         justifyContent="flex-start"
-         paddingLeft={24}
-         paddingRight={8}
-         paddingTop={13}
-         paddingBottom={16}
-         borderRadius={30}
-         castShadow={true}
-       >
-         <InfoField label="Name" labelWeight="medium" fontWeight="light" value={this.state.currentPlanet.name}/>
-         <InfoField label="Mass (kg)" value={this.state.currentPlanet.mass.toPrecision(7)}/>
-         <InfoField
-           label="Density (kg/m&)"
-           value={this.state.currentPlanet.density.toPrecision(5)}
-           labelSplit="&"
-           supText="3"
-         />
-         <InfoField label="Visual Scale" value={this.state.currentPlanet.scale}/>
+      <Container
+        name="info-box"
+        maxWidth={0}
+        position="absolute"
+        positionTop={0}
+        positionLeft={10}
+        alignItems="flex-start"
+        justifyContent="flex-start"
+        backgroundColor="blue"
+      >
+        <Container
+          ref={this.infoBox}
+          flexGrow={1} 
+          minWidth={this.state.maxWidth}
+          minHeight={this.state.minHeight}
+          maxWidth={this.state.maxWidth}
+          maxHeight={this.state.maxHeight}
+          position='absolute'
+          positionLeft={this.state.positionX}
+          positionTop={this.state.positionY}
+          hover={{ backgroundOpacity: 1 }} 
+          backgroundColor={this.state.color}
+          backgroundOpacity={0.9}
+          flexDirection="column"
+          justifyContent="flex-start"
+          paddingLeft={24}
+          paddingRight={8}
+          paddingTop={13}
+          paddingBottom={16}
+          borderRadius={30}
+          castShadow={true}
+        >
+          <InfoField label="Name" labelWeight="medium" fontWeight="light" value={this.state.currentPlanet.name}/>
+          <InfoField label="Mass (kg)" value={this.state.currentPlanet.mass.toPrecision(7)}/>
+          <InfoField
+            label="Density (kg/m&)"
+            value={this.state.currentPlanet.density.toPrecision(5)}
+            labelSplit="&"
+            supText="3"
+          />
+          <InfoField label="Visual Scale" value={this.state.currentPlanet.scale}/>
 
-         <CoordinateBox
-           x={this.state.currentPlanet.position.x}
-           y={this.state.currentPlanet.position.y}
-           label="Position (km): "
-         >
-         </CoordinateBox>
+          <CoordinateBox
+            x={this.state.currentPlanet.position.x}
+            y={this.state.currentPlanet.position.y}
+            label="Position (km): "
+          >
+          </CoordinateBox>
  
-         <CoordinateBox
-           x={this.state.currentPlanet.velocity.x / 1000}
-           y={this.state.currentPlanet.velocity.y / 1000}
-           label="Velocity (km/s): "
-         >
-         </CoordinateBox>
-         <CoordinateBox
-           x={velocityX}
-           y={velocityY}
-           label="Acceleration (m/s&): "
-           supText="2"
-           labelSplit="&"
-         >
-         </CoordinateBox>
+          <CoordinateBox
+            x={this.state.currentPlanet.velocity.x / 1000}
+            y={this.state.currentPlanet.velocity.y / 1000}
+            label="Velocity (km/s): "
+          >
+          </CoordinateBox>
+          <CoordinateBox
+            x={velocityX}
+            y={velocityY}
+            label="Acceleration (m/s&): "
+            supText="2"
+            labelSplit="&"
+          >
+          </CoordinateBox>
+        </Container>
        </Container>
-     </Container>
-    );
+      );
   }
 }
 export default InfoBox;

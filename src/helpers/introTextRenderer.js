@@ -19,7 +19,6 @@ export default class IntroTextRenderer {
     this.subHeader = new IntroText({
       scene,
       textString: 'Click a Planet to Explore!',
-      color: '#DC143C',
       info: 'Subheader',
       initialPositionY: 80,
       initialPositionX: 190,

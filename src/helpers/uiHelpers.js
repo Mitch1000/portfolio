@@ -1,7 +1,7 @@
 import handleSlider from './handleSlider';
 import PhysicsBody from './physicsBody';
 
-const { Vector3 } = window.THREE;
+import { Vector3 } from 'three';
 let currentEvent = { clientX: 0, clientY: 0, buttons: 0 };
 
 function onPlanetClick({ simulation, clickedObject }) {

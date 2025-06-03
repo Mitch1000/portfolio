@@ -1,8 +1,8 @@
-const React = window.React;
-const { useRef, useState, useEffect } = window.React;
+import React from 'react';
+import { useRef, useState, useEffect } from 'react';
 
-import { Container } from '../test/container.js';
-import { Svg } from '../test/svg.js';
+import { Container } from '@react-three/uikit';
+import { Svg } from '@react-three/uikit';
 
 let isHoverGit = false;
 let isHoverLinkedIn = false;

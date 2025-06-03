@@ -1,8 +1,8 @@
-const { useState, useEffect } = window.React;
-const { Canvas } = window.ReactFiber;
-import { Container } from '../test/container.js';
-import { Fullscreen } from '../test/fullscreen.js';
-const React = window.React;
+import { useState, useEffect } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { Container } from '@react-three/uikit';
+import { Fullscreen } from '@react-three/uikit';
+import React from 'react';
 import { main } from '../helpers/index';
 import { setPlanetClickHandler, setCurrentEvent, setCharacterClickHandler } from '../helpers/uiHelpers';
 import Styles from '../stylesheets/gravity_simulation.css';
